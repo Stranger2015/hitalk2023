@@ -11,5 +11,10 @@ class Flattener implements ITransformer {
     flatten();
     }
 
+    private
+    void flatten () {
+
+    }
+
 
 }

@@ -405,6 +405,10 @@ protected
         return flatten(clause.getHead(), (ListTerm) clause.getBody());
     }
 
+    /**
+     * @param clause
+     * @return
+     */
     private
     Clause expandGoal ( Clause clause ) {
         ListTerm body = (ListTerm) clause.getBody();
@@ -419,22 +423,28 @@ protected
   //      return null;
     }
 
+    /**
+     * @param stream
+     * @param options
+     * @return
+     * @throws IOException
+     */
     private
     Term readTerm ( PrologInputStream stream, TermOptions options ) throws IOException {
         parser.setStream(stream);
         Term t = iterator.next();
-        Deque <Term> l = expandTerm(t);
-        t = l.pop();
+        List <Term> l = expandTerm(t);
+        t = l.remove(0);
 
         return t;
     }
-//
-//    @Contract(pure = true)
-//    private @NotNull
-//    Deque <Term> expandTerm ( Term t ) {
-//        return call(AtomTerm.createAtom("term_expansion"));
-//    }
 
+    @Contract(pure = true)
+    private @NotNull
+    List <Term> expandTerm ( Term t ) {
+        return call(AtomTerm.createAtom("term_expansion"));
+    }
+//
     /**
      * @param term
      */

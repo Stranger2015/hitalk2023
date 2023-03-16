@@ -1,5 +1,8 @@
 package org.stranger2015.hitalk.core;
 
+/**
+ *
+ */
 public
 class RangeTerm extends CompoundTerm{
     public

@@ -29,7 +29,7 @@ class GoalExpander extends TermExpander {
         }
         else {
             /*termsToExpand.addAll(*/
-            Object l = call(AtomTerm.createAtom("goal_expansion")););
+            Object l = call(AtomTerm.createAtom("goal_expansion"));
         }
 
         return result;

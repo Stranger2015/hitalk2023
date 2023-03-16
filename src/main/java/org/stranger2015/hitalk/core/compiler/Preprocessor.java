@@ -26,15 +26,9 @@ class Preprocessor {
         transformers.add(new TermExpander());
         transformers.add(new GoalExpander());
         transformers.add(new Flattener());
+
         this.clause = clause;
     }
-//
-//    public
-//    Clause process () {
-//        Clause flattenClause = flatten(clause);
-//
-//        return null;
-//    }
 
     /**
      * @return

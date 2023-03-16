@@ -2,9 +2,8 @@ package org.stranger2015.hitalk.core.compiler.instructions;
 
 import org.stranger2015.hitalk.core.runtime.CellAddress;
 import org.stranger2015.hitalk.core.runtime.MemoryCell;
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
 
-import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryTypes.*;
+import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryType.*;
 
 public class GetStructure implements Instruction {
 	private final int arity;
@@ -19,21 +18,21 @@ public class GetStructure implements Instruction {
 	
 	private static final CellAddress h = new CellAddress(HEAP.ordinal(),-1,0);
 	public void execute(PrologRuntime runtime){
-		CellAddress a = runtime.deref(REGISTERS.ordinal(), -1,register);
-		MemoryCell m = runtime.getCell(a);
+		CellAddress a = deref(REGISTERS.ordinal(), -1,register);
+		MemoryCell m = getCell(a);
 		boolean fail = false;
-		if(m.getType()==MemoryCell.ETypeMemoryCells.REF){
-			h.setIndex(runtime.getH().getIndex());
-			runtime.getNewHeapCell().convertToStructureCell(runtime.getH());
-			runtime.getNewHeapCell().convertToFunctorCell(functor, arity);
-			runtime.bind(a, h);
-			runtime.setWriteMode(true);
-		} else if(m.getType()==MemoryCell.ETypeMemoryCells.STR){
+		if(m.getType()== REF){
+			h.setIndex(getH().getIndex());
+			getNewHeapCell().convertToStructureCell(getH());
+			getNewHeapCell().convertToFunctorCell(functor, arity);
+			bind(a, h);
+			setWriteMode(true);
+		} else if(m.getType()== STR){
 			a.set(m.getPointerDomain(), m.getPointerFrame(), m.getPointerIndex());
-			m = runtime.getCell(a);
-			if(m.getType()==MemoryCell.ETypeMemoryCells.FN && m.getFunctor().equals(functor) && m.getArgCount()==arity){
-				runtime.setS(a.getIndex()+1);
-				runtime.setWriteMode(false);
+			m = getCell(a);
+			if(m.getType()== FN && m.getFunctor().equals(functor) && m.getArgCount()==arity){
+				setS(a.getIndex()+1);
+				setWriteMode(false);
 			} else {
 				fail = true;
 			}
@@ -41,12 +40,12 @@ public class GetStructure implements Instruction {
 			fail = true;
 		}
 		if(fail) {
-			runtime.backtrack();
+			backtrack();
 		}
 		else {
-			runtime.increaseP();
+			increaseP();
 		}
-	} 
-	
+	}
+
 	public String toString(){ return "get_structure %s/%d X%d".formatted(functor, arity, register + 1); }
 }

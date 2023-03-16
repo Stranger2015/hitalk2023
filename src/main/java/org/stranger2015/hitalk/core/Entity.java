@@ -1,7 +1,5 @@
 package org.stranger2015.hitalk.core;
 
-import org.jetbrains.annotations.Contract;
-
 import java.util.*;
 
 /**
@@ -16,20 +14,19 @@ class Entity implements IPropertyOwner, IEnumerable {
     private final PredicateIndicator entityId;
     private final Map <AtomTerm, IProperty> props = new HashMap <>();
     private final Map <PredicateIndicator, PredicateDeclaration> predicateDeclTable = new HashMap <>();
-    private final Map <AtomTerm, List<Operator>> opTable = new HashMap <>();
+    private final Map <AtomTerm, List <Operator>> opTable = new HashMap <>();
     private final IEnumerable entity;
     /**
      *
      */
-    private final Set<PredicateIndicator> namespace=new HashSet <>();
-    private final List <Predicate> predicates = new ArrayList<>();
+    private final Set <PredicateIndicator> namespace = new HashSet <>();
+    private final List <Predicate> predicates = new ArrayList <>();
 
     /**
      * @param kind
      * @param entityId
      * @param entity
      */
-    @Contract(pure = true)
     protected
     Entity ( byte kind, PredicateIndicator entityId, IEnumerable entity ) {
         this.kind = kind;

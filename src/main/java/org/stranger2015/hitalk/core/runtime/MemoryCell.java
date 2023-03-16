@@ -13,10 +13,11 @@ import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.*
 
 public
 class MemoryCell {
+    private int type;
 
     public
     MemoryCell () {
-        type=REF;
+        type= ETypeMemoryCells.REF.ordinal();
     }
 
     public
@@ -34,7 +35,7 @@ class MemoryCell {
         LIS,
     }
 
-    private ETypeMemoryCells type = null;                      // Type of an instance
+    private ETypeMemoryCells eType;                      // Type of an instance
     private String functor;        // For functor and constant cells
     private int argCount = -1;        // For functor cells
     private double number = 0;
@@ -46,7 +47,7 @@ class MemoryCell {
      */
     public
     MemoryCell ( ETypeMemoryCells type ) {
-        this.type = type;
+        this.eType = type;
     }
 
     /**
@@ -54,7 +55,7 @@ class MemoryCell {
      */
     public
     void reset () {
-        type = null;
+        eType = null; //parseInt("-1");
         functor = null;
         argCount = -1;
         number = 0;
@@ -66,13 +67,13 @@ class MemoryCell {
      */
     public
     void convertToStructureCell ( CellAddress ptrFN ) {
-        this.type = STR;
+        this.type = STR.ordinal();
         pointer.set(ptrFN.getDomain(), ptrFN.getFrame(), ptrFN.getIndex());
     }
 
     public
     void convertToStructureCell ( int domain, int frame, int index ) {
-        this.type = STR;
+        this.type = STR.ordinal();
         pointer.set(domain, frame, index);
     }
 
@@ -81,13 +82,13 @@ class MemoryCell {
      */
     public
     void convertToRefCell ( CellAddress ptr ) {
-        this.type = REF;
+        this.type = REF.ordinal();
         pointer.set(ptr.getDomain(), ptr.getFrame(), ptr.getIndex());
     }
 
     public
     void convertToRefCell ( int domain, int frame, int index ) {
-        this.type = REF;
+        this.type = REF.ordinal();
         pointer.set(domain, frame, index);
     }
 
@@ -96,13 +97,13 @@ class MemoryCell {
      */
     public
     void convertToListCell ( CellAddress ptr ) {
-        this.type = LIS;
+        this.type = LIS.ordinal();
         pointer.set(ptr.getDomain(), ptr.getFrame(), ptr.getIndex());
     }
 
     public
     void convertToListCell ( int domain, int frame, int index ) {
-        this.type = LIS;
+        this.type = LIS.ordinal();
         pointer.set(domain, frame, index);
     }
 
@@ -111,7 +112,7 @@ class MemoryCell {
      */
     public
     void convertToFunctorCell ( String functor, int argCount ) {
-        this.type = FN;
+        this.type = FN.ordinal();
         this.functor = functor;
         this.argCount = argCount;
     }
@@ -121,7 +122,7 @@ class MemoryCell {
      */
     public
     void convertToConstantCell ( String constant ) {
-        this.type = CON;
+        this.type = CON.ordinal() ;
         this.functor = constant;
     }
 
@@ -130,7 +131,7 @@ class MemoryCell {
      */
     public
     void convertToNumberCell ( double number ) {
-        this.type = NUM;
+        this.type = NUM.ordinal();
         this.number = number;
     }
 
@@ -145,7 +146,6 @@ class MemoryCell {
         setArgCount(other.getArgCount());
         setNumber(other.getNumber());
         pointer.set(other.getPointerDomain(), other.getPointerFrame(), other.getPointerIndex());
-
     }
 
     public
@@ -155,13 +155,13 @@ class MemoryCell {
 
     public
     ETypeMemoryCells getType () {
-        return type;
+        return eType;
     }
 
     // Setters/getters
     public
     void setType ( ETypeMemoryCells type ) {
-        this.type = type;
+        this.eType = type;
     }
 
     public
@@ -212,15 +212,15 @@ class MemoryCell {
     public
     String toString () {
         String r = "";
-        switch (type) {
-            case STR -> r += "<STR," + pointer + ">";
-            case REF -> r += "<REF," + pointer + ">";
-            case FN -> r += "<FN," + functor + "," + argCount + ">";
-            case CON -> r += "<CON," + functor + ">";
-            case NUM -> r += "<NUM," + number + ">";
-            case LIS -> r += "<LIS," + pointer + ">";
+        switch (eType) {
+            case STR -> r += "<STR,%s>".formatted(pointer);
+            case REF -> r += "<REF,%s>".formatted(pointer);
+            case FN -> r += "<FN,%s,%d>".formatted(functor, argCount);
+            case CON -> r += "<CON,%s>".formatted(functor);
+            case NUM -> r += "<NUM,%s>".formatted(number);
+            case LIS -> r += "<LIS,%s>".formatted(pointer);
 //			case -1 -> r += "<null>";
-            default -> throw new IllegalStateException("Unexpected value: " + type);
+            default -> throw new IllegalStateException("Unexpected value: %s".formatted(type));
         }
 
         return r;

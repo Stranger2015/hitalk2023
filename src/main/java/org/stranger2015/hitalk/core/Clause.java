@@ -35,7 +35,7 @@ class Clause extends ListTerm implements Function <ListTerm, Boolean> {
      */
     @Override
     public
-    CompoundTerm getHead () {
+    Term getHead () {
         return head;
     }
 

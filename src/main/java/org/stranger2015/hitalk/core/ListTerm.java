@@ -1,7 +1,9 @@
 package org.stranger2015.hitalk.core;
 
-import org.jetbrains.annotations.Contract;
 import org.jetbrains.annotations.NotNull;
+
+import java.util.ArrayList;
+import java.util.List;
 
 import static org.stranger2015.hitalk.core.AtomTerm.createAtom;
 
@@ -10,10 +12,9 @@ import static org.stranger2015.hitalk.core.AtomTerm.createAtom;
  */
 public
 class ListTerm extends CompoundTerm {
-    protected static final Term EMPTY_LIST = createAtom("[]");
-
-    private final Term tail=new Variable();
-    private final Term head=new Variable();
+    public static final ListTerm EMPTY_LIST = createAtom("[]").getArgs();
+    private Term head;
+    private Term tail;
 
     /**
      * @param nameArgs
@@ -54,30 +55,30 @@ class ListTerm extends CompoundTerm {
      * @param head
      * @return
      */
-    @Contract(pure = true)
     private @NotNull
     ListTerm prepend ( Term head ) {
         return new ListTerm(head);
     }
 
-    public
-    ListTerm getTail () {
-        return (ListTerm) tail;
-    }
-
+    //    public
+//    ListTerm getTail () {
+//        return (ListTerm) value;
+//    }
+//
     public
     int getLength () {
-        Term h=this.head;
-        Term t=this.tail;
+        int result = 0;
+        Term h = this.head;
+//        Term t = this.value;
 
-        for (int i = 0;; i++) {
-            if (t==ListTerm.EMPTY_LIST){
-                return i;
-            }
-            if (t.isFree()){
-//             i -n
-            }
-        }
+//        for (int i = 0; ; i++) {
+//            if (t == EMPTY_LIST) {
+//                result = i;
+//                break;
+//            }
+//            t.isFree();//             i - n
+//        }
+        return result;
     }
 
     /**
@@ -86,5 +87,49 @@ class ListTerm extends CompoundTerm {
     public
     Term getHead () {
         return head;
+    }
+
+    /**
+     * @param i
+     * @return
+     */
+    public
+    Term getArg ( int i ) {
+        return getNth(i);
+    }
+
+    /**
+     * @param i
+     * @return
+     */
+    public
+    Term getNth ( int i ) {
+        ListTerm tail = this;
+        for (int j = i; j >= 0; j--) {
+            tail = getTail();
+        }
+
+        return tail.getHead();
+    }
+
+    public
+    Term popArg () {
+        Term h = getHead();
+        Term t = getTail();
+//        update term??
+        return h;
+    }
+
+    /**
+     * @return
+     */
+    public
+    List <Term> toList () {
+        final List <Term> l = new ArrayList <>();
+        for (Term h = head, t = tail; !tail.isFree() && !tail.isAtom(); h = tail.getHead(), t = tail.getTail()) {
+            l.add(h);
+        }
+
+        return l;
     }
 }

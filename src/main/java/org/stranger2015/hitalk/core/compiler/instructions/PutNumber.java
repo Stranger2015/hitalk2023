@@ -1,7 +1,5 @@
 package org.stranger2015.hitalk.core.compiler.instructions;
 
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
-
 public class PutNumber implements Instruction {
 	private final int register;
 	private final double number;

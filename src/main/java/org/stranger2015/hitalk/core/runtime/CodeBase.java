@@ -1,9 +1,8 @@
 package org.stranger2015.hitalk.core.runtime;
 
+import org.stranger2015.hitalk.core.compiler.CompiledClause;
 import org.stranger2015.hitalk.core.compiler.instructions.*;
-import org.stranger2015.hitalk.core.compiler.tokens.CompileToken;
-import org.stranger2015.hitalk.core.instructions.*;
-import org.stranger2015.hitalk.core.runtime.compiler.CompiledClause;
+import org.stranger2015.hitalk.core.runtime.compiler.CompilerToken;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -16,17 +15,22 @@ import java.util.Map;
  *
  */
 public class CodeBase {
-	private final Map<String, List<List<CompileToken>>> tokens = new HashMap <>(); // Contains all the compile tokens of the code, can be used for changing the code base and recompile it
+	private final Map<String, List<List<CompilerToken>>> tokens = new HashMap <>();
+	// Contains all the compile tokens of
+	//	the code, can be used for changing the code base and recompile it
 	private final Map<String, CodeClause> clauses = new HashMap<>();
 	private final Map<String, CodeClause> builtin = new HashMap<>();
-	private CodeClause query = new CodeClause();							// The latest compiled query
+	private CodeClause query = new CodeClause(); // The latest compiled query
 
 	public CodeBase(){ makeBuiltIn(); }
 
-	/** Add all the input tokens to the token based (appending after the current tokens in case of same predicates). */
-	public Map<String, List<List<CompileToken>>> mergeTokens(Map<String, List<List<CompileToken>>> input){
+	/**
+	 * Add all the input tokens to the token based (appending after the current tokens in case of same predicates).
+	 */
+	public
+	Map <String, List <List <CompilerToken>>> mergeTokens( Map <String, List <List <CompilerToken>>> input){
 		for(String f : input.keySet()){
-			List <List <CompileToken>> clauses = tokens.computeIfAbsent(f, k -> new ArrayList <>());
+			List <List <CompilerToken>> clauses = tokens.computeIfAbsent(f, k -> new ArrayList <>());
 			clauses.addAll(input.get(f));
 		}
 		return tokens;
@@ -40,7 +44,7 @@ public class CodeBase {
 	}
 
 	/** Override the current code. */
-	public void setCode(Map<String,List<CompiledClause>> code){
+	public void setCode( Map <String,List<CompiledClause>> code){
 		for(String f : code.keySet()){
 			boolean initial = true;
 			CodeClause clause = null; 
@@ -51,7 +55,9 @@ public class CodeBase {
 				newClause.setInstructions(c.getInstructions());
 				newClause.setPrologString(c.getPrologString()); 
 				newClause.setPrevious(clause);
-				if (clause != null) clause.setNext(newClause); 
+				if (clause != null) {
+					clause.setNext(newClause);
+				}
 				if(initial){
 					this.clauses.put(f, newClause); 
 					initial = false;
@@ -67,10 +73,11 @@ public class CodeBase {
 		CodeClause clause = clauses.get(functor); 
 		while(!clause.getPrologString().equals(fact)){
 			clause = clause.getNext(); 
-			if(clause == null) return;
+			if(clause == null) {
+				return;
+			}
 		}
 		Instruction i = clause.getInstruction(0);
-
 		if(i instanceof TryMe){
 			Instruction i2 = clause.getNext().getInstruction(0);
 			if(i2 instanceof RetryMeElse){
@@ -145,7 +152,7 @@ public class CodeBase {
 	private void makeBuiltIn(){
 		// Arithmetic
 		CodeClause c = new CodeClause();
-		List<Instruction> instr = new ArrayList<Instruction>();
+		List <Instruction> instr = new ArrayList <>();
 		instr.add(new Arithmetic());
 		c.setInstructions(instr);
 		c.belongsTo = " is /2";
@@ -153,7 +160,7 @@ public class CodeBase {
 
 		// Retract
 		c = new CodeClause();
-		instr = new ArrayList<Instruction>();
+		instr = new ArrayList <>();
 		instr.add(new TryMe(1));
 		instr.add(new Allocate(1));
 		instr.add(new GetVariable(-1, 0));
@@ -180,7 +187,7 @@ public class CodeBase {
 	public String toString(){ 
 		String s = "";
 		for(String f : clauses.keySet()){
-			s += f+":\r\n";
+			s += "%s:\r\n".formatted(f);
 			CodeClause clause = clauses.get(f);
 			int c = 0;
 			while(clause != null){ 

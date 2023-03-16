@@ -1,13 +1,13 @@
 package org.stranger2015.hitalk.core.compiler.instructions;
 
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
+import org.stranger2015.hitalk.core.runtime.PrologRuntime;
 
 public class SetNumber implements Instruction {
 	private final double number;
 	public SetNumber(double number){
 		this.number = number;
 	} 
-	public void execute(PrologRuntime runtime){
+	public void execute( PrologRuntime runtime){
 		runtime.getNewHeapCell().convertToNumberCell(number);
 		runtime.increaseP();
 	}

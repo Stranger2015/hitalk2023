@@ -1,14 +1,11 @@
 package org.stranger2015.hitalk.core.main;
 
-import org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime;
 import org.stranger2015.hitalk.core.runtime.CodeBase;
+import org.stranger2015.hitalk.core.runtime.PrologRuntime;
 
-import java.util.ArrayDeque;
-import java.util.ArrayList;
 import java.util.Map;
 
 import static org.stranger2015.hitalk.core.compiler.Compiler.compileFile;
-import static org.stranger2015.hitalk.core.compiler.Compiler.compileQuery;
 
 /**
  * Main class to use when utilizing this WAM implementation for Prolog. Using this class
@@ -17,15 +14,10 @@ import static org.stranger2015.hitalk.core.compiler.Compiler.compileQuery;
  *
  */
 public class Prolog {
-	private final CodeBase code = new CodeBase();						// Contains all the compiled Prolog code and the loaded query
-	private final PrologRuntime runtime = new PrologRuntime(
-			new ArrayList <>(),
-			new ArrayDeque <>(),
-			new ArrayDeque <>() ,
-			new CodeBase());	// Contains the data for answering a query
-//	private GUI gui;
+	private final CodeBase code = new CodeBase(); // Contains all the compiled Prolog code and the loaded query
+	private final PrologRuntime runtime = new PrologRuntime(new CodeBase());	// Contains the data for answering a query
 	private boolean debugMode = false;
-	private Map <String, Integer> lastQueryVariables; 			// The variables of the last query, used to obtain bindings after a query
+	private Map <String, Integer> lastQueryVariables; // The variables of the last query, used to obtain bindings after a query
 	
 	public Prolog(){ 
 //		gui = new GUI(this);

@@ -1,9 +1,8 @@
 package org.stranger2015.hitalk.core.compiler.instructions;
 
 import org.stranger2015.hitalk.core.runtime.CellAddress;
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
 
-import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryTypes.*;
+import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryType.*;
 
 public class PutStructure implements Instruction {
 	private final int register;
@@ -24,5 +23,5 @@ public class PutStructure implements Instruction {
 		runtime.increaseP();
 	} 
 	
-	public String toString(){ return "put_structure " + functor + "/" + arity + " X" + (register+1); }
+	public String toString(){ return "put_structure %s/%d X%d".formatted(functor, arity, register + 1); }
 }

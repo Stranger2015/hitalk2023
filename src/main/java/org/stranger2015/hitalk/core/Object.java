@@ -10,6 +10,6 @@ class Object extends Entity {
      * @param entityId
      */
     protected
-    Object ( byte kind, CompoundTerm entityId, IEnumerable enumerable  ) {
+    Object ( byte kind, PredicateIndicator entityId, IEnumerable enumerable  ) {
         super(kind, entityId, enumerable);
     }}

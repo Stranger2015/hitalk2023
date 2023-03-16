@@ -11,7 +11,7 @@ class Category extends Entity {
      * @param entityId
      */
     protected
-    Category ( byte kind, CompoundTerm entityId, IEnumerable category) {
+    Category ( byte kind, PredicateIndicator entityId, IEnumerable category) {
         super(kind, entityId, category);
     }
 }

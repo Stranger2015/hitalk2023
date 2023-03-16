@@ -17,7 +17,6 @@ package org.stranger2015.hitalk.core;
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
-import org.jetbrains.annotations.Contract;
 
 import java.io.Serializable;
 
@@ -27,6 +26,7 @@ import java.io.Serializable;
  *
  *
  */
+public
 class Token implements Serializable {
     // token textual representation
     String seq;
@@ -37,7 +37,6 @@ class Token implements Serializable {
      * @param seq_
      * @param type_
      */
-    @Contract(pure = true)
     public Token( String seq_, int type_) {
         seq = seq_;
         type = type_;

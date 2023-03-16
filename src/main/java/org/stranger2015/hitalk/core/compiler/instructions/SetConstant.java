@@ -1,7 +1,5 @@
 package org.stranger2015.hitalk.core.compiler.instructions;
 
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
-
 public class SetConstant implements Instruction {
 	private final String name;
 

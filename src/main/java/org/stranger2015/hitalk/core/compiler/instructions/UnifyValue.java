@@ -1,17 +1,16 @@
 package org.stranger2015.hitalk.core.compiler.instructions;
 
 import org.stranger2015.hitalk.core.runtime.CellAddress;
-import org.stranger2015.hitalk.core.runtime.compiler.WAMTokenizer;
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
 
-import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryTypes.*;
+import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryType.*;
+import static org.stranger2015.hitalk.core.runtime.compiler.WAMTokenizer.primeRegisterToStackIndex;
 
 public class UnifyValue implements Instruction {
 	private final CellAddress register = new CellAddress();
 	
 	public UnifyValue(int register){
 		if(register < 0) {
-			this.register.set(STACK.ordinal(),0, WAMTokenizer.primeRegisterToStackIndex(register));
+			this.register.set(STACK.ordinal(),0, primeRegisterToStackIndex(register));
 		}
 		else {
 			this.register.set(REGISTERS.ordinal(), 0, register);
@@ -30,7 +29,7 @@ public class UnifyValue implements Instruction {
 			fail = !runtime.unify(register.getDomain(),
 					register.getFrame(),
 					register.getIndex(),
-					PrologRuntime.EMemoryTypes.HEAP.ordinal(),
+					HEAP.ordinal(),
 					0,
 					runtime.getS());
 		}

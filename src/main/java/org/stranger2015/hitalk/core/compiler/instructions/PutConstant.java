@@ -1,7 +1,5 @@
 package org.stranger2015.hitalk.core.compiler.instructions;
 
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
-
 public class PutConstant implements Instruction {
 	private final int register;
 	private final String name;
@@ -16,5 +14,5 @@ public class PutConstant implements Instruction {
 		runtime.increaseP();
 	} 
 	
-	public String toString(){ return "put_constant " + name + " " + "A" + (register+1); }
+	public String toString(){ return "put_constant %s A%d".formatted(name, register + 1); }
 }

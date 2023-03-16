@@ -1,13 +1,9 @@
 package org.stranger2015.hitalk.core.compiler.tokens;
 
-public class ListToken implements CompileToken {
-	private int register;
-	
-	public ListToken(int register){
-		this.register = register;
+public
+record ListToken(int register) implements CompileToken {
+	public
+	String toString () {
+		return "<list, X%d>".formatted(register + 1);
 	}
-	
-	public int getRegister(){ return register; }
-		
-	public String toString(){ return "<list, X"+(register+1)+">"; }
 }

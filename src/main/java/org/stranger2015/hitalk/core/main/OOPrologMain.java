@@ -1,10 +1,10 @@
-package main; 
+package org.stranger2015.hitalk.core.main;
 
 import java.util.Map;
 
  
 public class OOPrologMain { 
-	private Prolog prolog = new Prolog(); 
+	private final Prolog prolog = new Prolog();
 	
 	public static void main(String[] args){
 		OOPrologMain m = new OOPrologMain();

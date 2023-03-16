@@ -2,17 +2,19 @@ package org.stranger2015.hitalk.core.compiler.instructions;
 
 import org.stranger2015.hitalk.core.runtime.CellAddress;
 import org.stranger2015.hitalk.core.runtime.MemoryCell;
+import org.stranger2015.hitalk.core.runtime.PrologRuntime;
 
 import java.util.HashMap;
 
-import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryTypes.REGISTERS;
+import static org.stranger2015.hitalk.core.compiler.Compiler.compileStringFact;
 import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.*;
-import static org.stranger2015.hitalk.core.runtime.compiler.CompiledClause.compileStringFact;
+import static org.stranger2015.hitalk.core.runtime.PrologRuntime.REGISTERS;
 
 public class Assert implements Instruction {
-	private final CellAddress addr = new CellAddress(REGISTERS.ordinal(),0,0);
+	private final CellAddress addr = new CellAddress(REGISTERS,0,0);
 
-	public void execute(PrologRuntime runtime){  
+	@Override
+	public void execute( PrologRuntime runtime){
 		MemoryCell strCell = runtime.getCell(addr);
 		if(strCell.getType()!= CON && strCell.getType()!= REF) {
 			runtime.backtrack();
@@ -32,10 +34,14 @@ public class Assert implements Instruction {
 
 				functor = "%s/%d".formatted(fnCell.getFunctor(), fnCell.getArgCount());
 			}
+			assert compileStringFact(functor, r.toString()) != null;
 			runtime.getCodeBase().addCodeClause(compileStringFact(functor, r.toString()));
 			runtime.moveToContinuationInstruction(); // continue
 		}
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public String toString(){ return "assert";	}
 }

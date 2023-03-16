@@ -4,6 +4,8 @@ import org.stranger2015.hitalk.core.runtime.CellAddress;
 import org.stranger2015.hitalk.core.runtime.MemoryCell;
 import org.stranger2015.hitalk.core.runtime.compiler.WAMTokenizer;
 
+import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryType.*;
+
 public class UnifyVariable implements Instruction {
 	private final int register;
 	
@@ -11,7 +13,7 @@ public class UnifyVariable implements Instruction {
 		this.register = register; 
 	}
 	
-	private final CellAddress h = new CellAddress(EHEAP.ordinal(), 0, 0);
+	private final CellAddress h = new CellAddress(HEAP.ordinal(), 0, 0);
 	public void execute(PrologRuntime runtime) {
 		MemoryCell m;
 		if(runtime.isInWriteMode()){

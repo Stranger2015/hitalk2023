@@ -21,6 +21,7 @@ package org.stranger2015.hitalk.core;
 import org.jetbrains.annotations.Contract;
 
 import java.util.*;
+import java.util.Map.Entry;
 
 /**
  * This class manages Prolog operators.
@@ -43,7 +44,7 @@ class OperatorManager implements java.io.Serializable {
      * it replaces it with the new one
      */
     public void opNew(String name, String type,int prio) {
-        final Operator op = new Operator(new AtomTerm(name), new AtomTerm(type), prio);
+        final Operator op = new Operator(AtomTerm.createAtom(name), AtomTerm.createAtom(type), prio);
         if (prio >= OP_LOW && prio <= OP_HIGH) {
             operatorList.addOperator(op);
         }
@@ -92,13 +93,12 @@ class OperatorManager implements java.io.Serializable {
     private static class OperatorRegister extends LinkedHashSet<Operator> {
         //map of operators by priority and type
         //key is the nameType of an operator (for example ":-xfx") - value is an Operator
-        private final Map nameTypeToKey = new HashMap<>();
+        private final Map<Entry<String, String>, Operator> nameTypeToKey = new HashMap<>();
 
         /**
          * @param op
          * @return
          */
-        @Contract(mutates = "this")
         public boolean addOperator( Operator op) {
 //            final String nameTypeKey = op.name + op.type;
 //            Operator matchingOp = (Operator) nameTypeToKey.get(nameTypeKey);

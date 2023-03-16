@@ -22,7 +22,6 @@ class PredicateMode {
     /**
      * @return
      */
-    @Contract(pure = true)
     public static
     CompoundTerm getMode () {
         return mode;

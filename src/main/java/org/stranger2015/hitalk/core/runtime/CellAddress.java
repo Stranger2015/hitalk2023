@@ -3,10 +3,6 @@ package org.stranger2015.hitalk.core.runtime;
 import org.stranger2015.hitalk.core.ListTerm;
 import org.stranger2015.hitalk.core.Term;
 
-import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryTypes.REGISTERS;
-import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryTypes.STACK;
-import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.targetToString;
-
 /**
  * Just a containter to point at some memory in the WAM.
  * I'm planning to replace all CellAddress occurrences with a long which
@@ -74,6 +70,7 @@ public class CellAddress extends Term {
 					return true;
 				}
 			}
+
 			return index < other.getIndex(); 
 		}
 	}

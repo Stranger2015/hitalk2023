@@ -2,12 +2,13 @@ package org.stranger2015.hitalk.core.compiler.instructions;
 
 import org.stranger2015.hitalk.core.runtime.CellAddress;
 import org.stranger2015.hitalk.core.runtime.MemoryCell;
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
 
-import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.*;
+import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryType.*;
+import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.CON;
+import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.REF;
 
 public class UnifyConstant implements Instruction {
-	private final CellAddress s = new CellAddress(PrologRuntime.EMemoryTypes.HEAP.ordinal(), 0, 0);
+	private final CellAddress s = new CellAddress(HEAP.ordinal(), 0, 0);
 
 	private final String name;
 	public UnifyConstant(String name){
@@ -19,7 +20,7 @@ public class UnifyConstant implements Instruction {
 		if(runtime.isInWriteMode()){
 			runtime.getNewHeapCell().convertToConstantCell(name);
 		} else {
-			CellAddress d = runtime.deref(PrologRuntime.EMemoryTypes.HEAP.ordinal(), 0, runtime.getS());
+			CellAddress d = runtime.deref(HEAP.ordinal(), 0, runtime.getS());
 			MemoryCell m = runtime.getCell(d);
 			if(m.getType() == REF){
 				m.convertToConstantCell(name);

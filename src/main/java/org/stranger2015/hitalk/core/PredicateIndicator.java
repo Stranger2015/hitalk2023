@@ -2,13 +2,20 @@ package org.stranger2015.hitalk.core;
 
 import org.jetbrains.annotations.Contract;
 
-import static org.stranger2015.hitalk.core.PredicateIndicator.Qualifier.*;
+import static org.stranger2015.hitalk.core.AtomTerm.createAtom;
+import static org.stranger2015.hitalk.core.PredicateIndicator.Qualifier.DOUBLE_SLASH;
+import static org.stranger2015.hitalk.core.PredicateIndicator.Qualifier.SLASH;
 
 /**
  *
  */
 public
 class PredicateIndicator extends CompoundTerm {
+    public
+    PredicateIndicator ( AtomTerm head, int arity ) {
+        super(head, arity);
+    }
+
     @Override
     public
     AtomTerm getName () {
@@ -20,7 +27,7 @@ class PredicateIndicator extends CompoundTerm {
      */
     @Override
     public
-    IntTerm getArity () {
+    int getArity () {
         return arity;
     }
 
@@ -28,8 +35,8 @@ class PredicateIndicator extends CompoundTerm {
      *
      */
     enum Qualifier {
-        SLASH(new AtomTerm("/")),
-        DOUBLE_SLASH(new AtomTerm("//")),
+        SLASH(createAtom("/")),
+        DOUBLE_SLASH(createAtom("//")),
         ;
 
         private final AtomTerm atomTerm;
@@ -37,7 +44,6 @@ class PredicateIndicator extends CompoundTerm {
         /**
          * @param atomTerm
          */
-        @Contract(pure = true)
         Qualifier ( AtomTerm atomTerm ) {
             this.atomTerm = atomTerm;
         }
@@ -45,7 +51,6 @@ class PredicateIndicator extends CompoundTerm {
         /**
          * @return
          */
-        @Contract(pure = true)
         public
         AtomTerm getAtomTerm () {
             return atomTerm;
@@ -53,18 +58,17 @@ class PredicateIndicator extends CompoundTerm {
     }
 
     private final AtomTerm name;
-    private final IntTerm arity;
+    private final int arity;
 
     /**
      * @param name
      * @param arity
      */
     public
-    PredicateIndicator ( Term name, boolean slash, IntTerm arity ) {
+    PredicateIndicator ( AtomTerm name, boolean slash, int arity ) {
         super(qualifiedName, name, arg2);
 
         this.name = slash ? SLASH.getAtomTerm() : DOUBLE_SLASH.getAtomTerm();
         this.arity = arity;
     }
 }
-

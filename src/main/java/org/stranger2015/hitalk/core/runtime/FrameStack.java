@@ -1,12 +1,11 @@
 package org.stranger2015.hitalk.core.runtime;
 
-import org.stranger2015.hitalk.core.Term;
-
 import java.util.ArrayList;
 import java.util.List;
 
 /**
- * The frame stack contains the environments and choice points (implemented as Frame objects) that are required at runtime.
+ * The frame stack contains the environments and choice points (implemented as Frame objects)
+ * that are required at runtime.
  * The frame objects are reused between queries in order to prevent their mass instantiation. 
  * @author Bas Testerink
  *
@@ -25,14 +24,26 @@ public class FrameStack {
 	/** Obtain a new frame index. */
 	private int newFrameIndex(){
 		int top;
-		if(topChoicePointStack > topEnvironmentStack)
+		if(topChoicePointStack > topEnvironmentStack) {
 			top = topChoicePointStack + 1;
-		else top = topEnvironmentStack + 1;
-		if(top == stack.size()){
-			stack.add(new Frame());
 		}
+		else {
+			top = topEnvironmentStack + 1;
+		}
+		if(top == stack.size()){
+			stack.add(newFrame());
+		}
+
 		return top;
 	}
+
+	/**
+	 * @return
+	 */
+public
+Frame newFrame(){
+		return new Frame();
+}
 
 	/** Obtain a new environment. This frame might be a reused frame. */
 	public
@@ -41,6 +52,7 @@ public class FrameStack {
 		topEnvironmentStack = newFrameIndex();
 		Frame r = stack.get(topEnvironmentStack);
 		r.setPrevious(currentTop); // This will function as setting the current E in the environment
+
 		return r;
 	}
 
@@ -50,16 +62,20 @@ public class FrameStack {
 		int currentTop = topChoicePointStack;
 		topChoicePointStack = newFrameIndex();
 		Frame r = stack.get(topChoicePointStack);
-		r.setPrevious(currentTop); // This will function as setting the current B in the choicepoint
+		r.setPrevious(currentTop);			 // This will function as setting the current B in the choicepoint
+
 		return r;
 	}
 	
 	/** Obtain the top frame and remove it. */
 	public
     Frame popTopEnvironment(){
-		if(topEnvironmentStack < 0) return null;
+		if(topEnvironmentStack < 0) {
+			return null;
+		}
 		int top = topEnvironmentStack; 
 		topEnvironmentStack = stack.get(top).getPrevious();
+
 		return stack.get(top);
 	}
 	
@@ -103,11 +119,11 @@ public class FrameStack {
 	
 	/** Obtain the memory cell of a stack variable. */
 	public
-	Term getVariable( int nr){ return (Term) stack.get(topEnvironmentStack).getVar(nr); }
+	MemoryCell getVariable( int nr){ return stack.get(topEnvironmentStack).getVar(nr); }
 	
 	/** Obtain the variables of the top frame. */
 	public
-	List<Term> getVariables(){ return stack.get(topEnvironmentStack).getVariables(); }
+	List<MemoryCell> getVariables(){ return stack.get(topEnvironmentStack).getVariables(); }
 	
 	public String toString(){
 		StringBuilder b = new StringBuilder();

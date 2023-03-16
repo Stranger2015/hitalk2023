@@ -12,7 +12,6 @@ class ModeIndicator {
     /**
      * @param modeTerm
      */
-    @Contract(pure = true)
     public
     ModeIndicator ( CompoundTerm modeTerm ) {
         this.modeTerm = modeTerm;

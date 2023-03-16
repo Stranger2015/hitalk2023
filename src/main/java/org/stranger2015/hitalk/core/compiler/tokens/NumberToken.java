@@ -1,16 +1,14 @@
 package org.stranger2015.hitalk.core.compiler.tokens;
 
-public class NumberToken implements CompileToken {
-	private double number; 
-	private int argument;
-	
-	public NumberToken(double number, int argument){
-		this.number = number;
-		this.argument = argument;
+public
+record NumberToken(double number, int argument) implements CompileToken {
+	public
+	String toString () {
+		return "<number %s>".formatted(number);
 	}
-	
-	public double getNumber(){ return number; }
-	public int getArgument(){ return argument; }
-	
-	public String toString(){ return "<number " + number + ">"; }
+
+	public static
+	class EndOfHead implements CompileToken {
+		public String toString(){ return "End of Head Tokens" ; }
+	}
 }

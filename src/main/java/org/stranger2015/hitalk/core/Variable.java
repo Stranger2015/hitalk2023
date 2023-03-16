@@ -4,7 +4,7 @@ public
 class Variable extends Term{
 
     protected
-    Variable ( ) {
+    Variable ( String seq ) {
         super(head);
     }
 

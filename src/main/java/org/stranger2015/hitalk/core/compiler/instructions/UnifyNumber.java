@@ -2,14 +2,13 @@ package org.stranger2015.hitalk.core.compiler.instructions;
 
 import org.stranger2015.hitalk.core.runtime.CellAddress;
 import org.stranger2015.hitalk.core.runtime.MemoryCell;
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
 
-import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryTypes.*;
-import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.*;
+import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryType.*;
+import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.NUM;
 import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.REF;
 
 public class UnifyNumber implements Instruction {
-	private double number;
+	private final double number;
 	
 	public UnifyNumber(double number){
 		this.number = number;
@@ -25,7 +24,7 @@ public class UnifyNumber implements Instruction {
 			if(m.getType() == REF){
 				m.convertToNumberCell(number);
 				runtime.trail(d);
-			} else if(m.getType() != NUM || m.getNumber() != number) {
+			} else if((m.getType() != NUM) || (m.getNumber() != number)) {
 				fail = true;
 			}
 			if(!fail) {

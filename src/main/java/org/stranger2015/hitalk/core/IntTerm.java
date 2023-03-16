@@ -10,7 +10,7 @@ class IntTerm extends Term {
      * @param value
      */
     public
-    IntTerm ( ListTerm value ) {
+    IntTerm ( int value ) {
         super(value);
     }
 

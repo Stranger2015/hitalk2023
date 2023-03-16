@@ -1,10 +1,21 @@
 package org.stranger2015.hitalk.core.compiler.instructions;
 
+import org.stranger2015.hitalk.core.runtime.PrologRuntime;
+
 public class Proceed implements Instruction {
 
-	public void execute(PrologRuntime runtime) { 
+	/**
+	 * @param runtime
+	 */
+	@Override
+	public void execute( PrologRuntime runtime) {
 		runtime.moveToContinuationInstruction();
 	}
-	
-	public String toString(){ return "proceed";	}
+
+	/**
+	 * @return
+	 */
+	public String toString(){
+		return "proceed";
+	}
 }

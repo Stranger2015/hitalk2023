@@ -1,23 +1,14 @@
 package org.stranger2015.hitalk.core.compiler;
 
-import org.antlr.v4.runtime.ANTLRFileStream;
-import org.antlr.v4.runtime.ANTLRInputStream;
-import org.antlr.v4.runtime.CharStream;
-import org.antlr.v4.runtime.CommonTokenStream;
-import org.antlr.v4.runtime.tree.ParseTree;
+import org.stranger2015.hitalk.core.*;
 import org.stranger2015.hitalk.core.compiler.instructions.*;
 import org.stranger2015.hitalk.core.compiler.tokens.*;
-import org.stranger2015.hitalk.core.instructions.*;
 import org.stranger2015.hitalk.core.runtime.CodeBase;
-import org.stranger2015.hitalk.core.runtime.compiler.CompiledClause;
-import org.stranger2015.hitalk.core.runtime.compiler.WAMTokenizer;
-import org.stranger2015.hitalk.core.runtime.compiler.tokens.AllocateToken;
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Allocate;
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Call;
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
-import parser.PrologLexer;
-import parser.PrologParser;
+import org.stranger2015.hitalk.core.runtime.compiler.CompilerToken;
 
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
@@ -39,34 +30,59 @@ public class Compiler {
     /**
      * Compile a file and add it to the code base. Redefinitions of predicates append to the old ones (so they do not override!).
      */
-    public static void compileFile(String file, CodeBase codebase) {
-        Map<String, List<List<CompileToken>>> tokens = codebase.mergeTokens(tokenizeFile(file));
+    public static void compileFile(String file, CodeBase codebase) throws FileNotFoundException {
+        Map<String, List<List<CompilerToken>>> tokens = codebase.mergeTokens(tokenizeFile(file));
         codebase.setCode(compile(tokens));
+    }
+
+    /**
+     * @param file
+     * @return
+     * @throws FileNotFoundException
+     */
+    private static
+    Map <String, List <List <CompilerToken>>> tokenizeFile ( String file ) throws FileNotFoundException {
+        Map<String,List <List <CompilerToken>>> map=new HashMap <>();
+
+        return map;
     }
 
     /**
      * Compile the lists of tokens (one for each clause) for predicates.
      */
-    private static Map<String, List<CompiledClause>> compile( Map<String, List<List<CompileToken>>> tokens) {
+    private static
+    Map <String, List <CompiledClause>> compile( Map <String, List <List <CompilerToken>>> tokens) {
         Map<String, List<CompiledClause>> result = new HashMap <>();
         for (String functor : tokens.keySet()) {
             if (!functor.equals("fail/0")) { // Cannot define the fail predicate as it should always fail
                 List<CompiledClause> clauses = new ArrayList <>();
-                List<List<CompileToken>> clauseTokens = tokens.get(functor);
+                List<List<CompilerToken>> clauseTokens = tokens.get(functor);
                 int arity = Integer.parseInt(functor.substring(functor.lastIndexOf('/') + 1));
                 for (int i = 0; i < clauseTokens.size(); i++) {
                     CompiledClause compiledClause = compileSingleClause(clauseTokens.get(i), functor, false);
-                    if (i == 0 && clauseTokens.size() > 1) compiledClause.getInstructions().add(0, new TryMe(arity));
-                    if (i > 0 && clauseTokens.size() > 2 && clauseTokens.size() - 1 > i)
-                        compiledClause.getInstructions().add(0, new RetryMeElse());
-                    if (i > 0 && clauseTokens.size() - 1 == i) compiledClause.getInstructions().add(0, new TrustMe());
+                    if (i == 0 && clauseTokens.size() > 1) {
+                        assert compiledClause != null;
+                        compiledClause.instructions().add(0, new TryMe(arity));
+                    }
+                    if (i > 0 && clauseTokens.size() > 2 && clauseTokens.size() - 1 > i) {
+                        compiledClause.instructions().add(0, new RetryMeElse());
+                    }
+                    if (i > 0 && clauseTokens.size() - 1 == i) {
+                        compiledClause.instructions().add(0, new TrustMe());
+                    }
                     clauses.add(compiledClause);
                 }
                 result.put(functor, clauses);
             }
         }
+
         return result;
     }
+//
+//   public static
+//    CompiledClause compileSingleClause ( List <CompilerToken> compileTokens, String functor, boolean isQuery ) {
+//        return null;
+//    }
 
     /**
      * Compile a single fact (used by assert).
@@ -78,57 +94,96 @@ public class Compiler {
     /**
      * Compile a single clause. So no try/retry/trust/indexing instructions are added here.
      */
-    private static CompiledClause compileSingleClause(List<CompileToken> tokens, String functor, boolean isQuery) {
-        List <Instruction> instructions = new ArrayList <Instruction>();
-        Set <Integer> encountered = new HashSet <Integer>();
+    private static CompiledClause compileSingleClause( List<CompilerToken> tokens, String functor, boolean isQuery) throws IllegalStateException {
+        List <Instruction> instructions = new ArrayList <>();
+        Set <Integer> encountered;
         for (int c = 1; c < tokens.size(); c++) {
-            CompileToken t = tokens.get(c);
-            if (t instanceof AllocateToken) {
-                instructions.add(new Allocate(((AllocateToken) t).getNrOfVariables()));
-            } else if (t instanceof DeallocateToken) {
+            CompilerToken t = tokens.get(c);
+            switch (t.getType()){
+//            } else if (t instanceof DeallocateToken) {
                 instructions.add(new Deallocate());
-            } else if (t instanceof CutToken) {
+//            } else if (t instanceof CutToken) {
                 instructions.add(new Cut());
-            } else if (t instanceof ProceedToken) {
+//            } else if (t instanceof ProceedToken) {
                 instructions.add(new Proceed());
-            } else if (t instanceof CallVariableToken) {
+//            } else if (t instanceof CallVariableToken) {
                 instructions.add(new CallVariable(((CallVariableToken) t).getRegister()));
-                Set<Integer> toremove = new HashSet<Integer>();
+//                Set<Integer> toRemove;
                 for (int i : encountered) { // needed? A variable call always immediately follows some other call, or is the body of a chain rule.
-                    if (i >= 0) toremove.add(i);
+                    if (i >= 0) {
+//                        toRemove.add(i);
+                    }
                 }
-                encountered.removeAll(toremove);
-            } else if (t instanceof CallToken) {
+//                encountered.removeAll(toRemove);
+//            } else if (t instanceof CallToken) {
                 instructions.add(new Call(((CallToken) t).getFunctor(), ((CallToken) t).getArity()));
                 // After a call you have to build the next query. XRegisters are reset after
                 // each top term. So you need to remove their occurrences.
-                Set<Integer> toremove = new HashSet<Integer>();
+                Set<Integer> toRemove = null;
                 for (int i : encountered) {
-                    if (i >= 0) toremove.add(i);
+                    if (i >= 0) {
+                        toRemove.add(i);
+                    }
                 }
-                encountered.removeAll(toremove);
-            } else if (t instanceof EndOfHead) {
+                encountered.removeAll(toRemove);
+//            } else if (t instanceof NumberToken.EndOfHead) {
                 isQuery = true;
-            } else if (isQuery) instructions.add(processQueryTermToken(t, encountered));
-            else instructions.add(processProgramTermToken(t, encountered));
-        }
-        return new CompiledClause(((StringRepresentationToken) tokens.get(0)).getValue(), functor, instructions);
+            //} else if (isQuery) instructions.add(processQueryTermToken(t, encountered));
+            /*else*/ instructions.add(processProgramTermToken(t, encountered));
+                case ALLOCATE -> {
+                    instructions.add(new Allocate(((AllocateToken) t).getNrOfVariables()));
+                }
+                case ARGUMENT_VARIABLE -> {
+                }
+                case CALL -> {
+
+                }
+
+                case CALL_VARIABLE -> {
+                }
+                case CONSTANT -> {
+                }
+                case CUT -> {
+                }
+                case DEALLOCATE -> {
+                }
+                case END_OF_HEAD -> {
+                }
+                case LIST -> {
+                }
+                case NUMBER -> {
+                }
+                case PROCEED -> {
+                }
+                case STRING_REPRESENTATION -> {
+                }
+                case STRUCTURE -> {
+                }
+                case SUBTERM_REGISTER -> {
+                }
+                default -> throw new IllegalStateException("Unexpected value: %s".formatted(t.getType()));
+            }
+        return new CompiledClause(
+                ((StringRepresentationToken) tokens.get(0)).value(),
+                functor,
+                instructions);
     }
 
     /**
      * Handle the encounter of a register inside a fact/program context.
      */
-    private static Instruction processProgramTermToken(CompileToken t, Set<Integer> encountered) {
+    private static Instruction processProgramTermToken(CompilerToken token,Set<Integer> encountered) {
+       switch (){
         if (t instanceof ListToken) {
-            return new GetList(((ListToken) t).getRegister());
+            return new GetList(((ListToken) t).register());
         } else if (t instanceof Structure s) {
-            return new GetStructure(s.getRegister(), s.getFunctor(), s.getArity());
+            return new GetStructure(s.register(), s.functor(), s.arity());
         } else if (t instanceof ConstantToken s) {
             if (s.getArgument() < 0) return new UnifyConstant(s.getName());
             else return new GetConstant(s.getArgument(), s.getName());
         } else if (t instanceof NumberToken s) {
-            if (s.getArgument() < 0) return new UnifyNumber(s.getNumber());
-            else return new GetNumber(s.getArgument(), s.getNumber());
+            if (s.argument() < 0) return new UnifyNumber(s.number());
+            else return new GetNumber(s.argument(), s.number());
         } else if (t instanceof SubtermRegister s) {
             if (encountered.contains(s.getRegister())) {
                 return new UnifyValue(s.getRegister());
@@ -137,11 +192,11 @@ public class Compiler {
                 return new UnifyVariable(s.getRegister());
             }
         } else if (t instanceof ArgumentVariable s) {
-            if (encountered.contains(s.getPrimeRegister())) {
-                return new GetValue(s.getPrimeRegister(), s.getArgumentRegister());
+            if (encountered.contains(s.primeRegister())) {
+                return new GetValue(s.primeRegister(), s.argumentRegister());
             } else {
-                encountered.add(s.getPrimeRegister());
-                return new GetVariable(s.getPrimeRegister(), s.getArgumentRegister());
+                encountered.add(s.primeRegister());
+                return new GetVariable(s.primeRegister(), s.argumentRegister());
             }
         }
         return null;
@@ -150,13 +205,13 @@ public class Compiler {
     /**
      * Handle the encounter of a register inside a body goal/query context.
      */
-    private static Instruction processQueryTermToken(CompileToken t, Set<Integer> encountered) {
+    private static Instruction processQueryTermToken(CompilerToken t, Set<Integer> encountered) {
         if (t instanceof ListToken) {
-            encountered.add(((ListToken) t).getRegister());
-            return new PutList(((ListToken) t).getRegister());
+            encountered.add(((ListToken) t).register());
+            return new PutList(((ListToken) t).register());
         } else if (t instanceof Structure s) {
-            encountered.add(((Structure) t).getRegister());
-            return new PutStructure(s.getRegister(), s.getFunctor(), s.getArity());
+            encountered.add(((Structure) t).register());
+            return new PutStructure(s.register(), s.functor(), s.arity());
         } else if (t instanceof ConstantToken s) {
             if (s.getArgument() < 0) {
                 return new SetConstant(s.getName());
@@ -165,9 +220,9 @@ public class Compiler {
                 return new PutConstant(s.getArgument(), s.getName());
             }
         } else if (t instanceof NumberToken s) {
-            if (s.getArgument() < 0) return new SetNumber(s.getNumber());
+            if (s.argument() < 0) return new SetNumber(s.number());
             else {
-                return new PutNumber(s.getArgument(), s.getNumber());
+                return new PutNumber(s.argument(), s.number());
             }
         } else if (t instanceof SubtermRegister s) {
             if (encountered.contains(s.getRegister())) {
@@ -177,11 +232,11 @@ public class Compiler {
                 return new SetVariable(s.getRegister());
             }
         } else if (t instanceof ArgumentVariable s) {
-            if (encountered.contains(s.getPrimeRegister())) {
-                return new PutValue(s.getPrimeRegister(), s.getArgumentRegister());
+            if (encountered.contains(s.primeRegister())) {
+                return new PutValue(s.primeRegister(), s.argumentRegister());
             } else {
-                encountered.add(s.getPrimeRegister());
-                return new PutVariable(s.getPrimeRegister(), s.getArgumentRegister());
+                encountered.add(s.primeRegister());
+                return new PutVariable(s.primeRegister(), s.argumentRegister());
             }
         }
         return null;
@@ -194,10 +249,12 @@ public class Compiler {
      */
     public static
     Map <String, Integer> compileQuery( String query, CodeBase codebase) {
-        WAMTokenizer tokenizer = visitor(new ANTLRInputStream(query));
-        List<CompileToken> tokens = tokenizer.getQuery();
+
+//        WAMTokenizer tokenizer = visitor(new ANTLRInputStream(query));
+        PrologParser parser=new PrologParser();
+        List<CompilerToken> tokens = tokenizer.getQuery();
         CompiledClause queryInstructions = compileSingleClause(tokens, "query", true);
-        queryInstructions.getInstructions().add(new EndOfQuery());
+        queryInstructions.instructions().add(new EndOfQuery());
         codebase.setQuery(queryInstructions);
 
         return tokenizer.getQueryVariablePositions();
@@ -205,10 +262,15 @@ public class Compiler {
 
     // Some calls for tokenizing input.
 
-    public static Map<String, List<List<CompileToken>>> tokenizeFile(String file) {
+    public static Map<String, List<List<CompilerToken>>> tokenizeFile(String file) {
         try {
-            ANTLRFileStream stream = new ANTLRFileStream(file);
-            return visitor(stream).getTokens();
+//            ANTLRFileStream stream = new ANTLRFileStream(file);
+//            return visitor(stream).getTokens();
+            PrologParser parser = new PrologParser(null, new BufferedReader(new FileReader(file)));
+            for (int i = 0;; i++) {
+                Term token = parser.nextTerm(true);
+
+            }
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -216,23 +278,31 @@ public class Compiler {
     }
 
     // For assert
-    public static List<CompileToken> tokenizeFactString(String fact) {
-        ANTLRInputStream stream = new ANTLRInputStream(fact);
-        Map<String, List<List<CompileToken>>> map = visitor(stream).getTokens();
-        return map.get(map.keySet().iterator().next()).get(0);
+    public static
+    List <CompilerToken> tokenizeFactString( String fact) {
+//        ANTLRInputStream stream = new ANTLRInputStream(fact);
+//        Map<String, List<List<CompileToken>>> map = visitor(stream).getTokens();
+//        return map.get(map.keySet().iterator().next()).get(0);
     }
 
-    /**
-     * Create a visitor for a char stream. ANTLR will create a parsetree and then the visitor can convert it into tokens.
-     */
-    private static WAMTokenizer visitor( CharStream stream) {
-        PrologLexer lexer = new PrologLexer(stream);
-        CommonTokenStream tokens = new CommonTokenStream(lexer);
-        PrologParser parser = new PrologParser(tokens);
-        ParseTree tree = parser.toprule();
-        WAMTokenizer visitor = new WAMTokenizer();
-        visitor.p = parser; // For debugging, needed for outputting register assignment
-        visitor.visit(tree);
-        return visitor;
-    }
+//    /**
+//     * Create a visitor for a char stream. ANTLR will create a parsetree and then the visitor can convert it into tokens.
+//     private static
+//    WAMTokenizer visitor( CharStream stream) {
+//        PrologLexer lexer = new PrologLexer(stream);
+////        CommonTokenStream tokens = new CommonTokenStream(lexer);
+//        PrologParser parser = new PrologParser(tokens);
+//        ParseTree tree = parser.toprule();
+//        WAMTokenizer visitor = new WAMTokenizer();
+//        visitor.p = parser; // For debugging, needed for outputting register assignment
+//        visitor.visit(tree);
+//        return visitor;
+//    }
 }
+
+    private static
+    Instruction processProgramTermToken ( CompilerToken t, Set <Integer> encountered ) {
+
+
+        return null;
+    }

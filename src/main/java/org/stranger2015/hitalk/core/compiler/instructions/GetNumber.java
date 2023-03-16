@@ -2,11 +2,10 @@ package org.stranger2015.hitalk.core.compiler.instructions;
 
 import org.stranger2015.hitalk.core.runtime.CellAddress;
 import org.stranger2015.hitalk.core.runtime.MemoryCell;
-import org.stranger2015.hitalk.core.runtime.instructions.wam.Instruction;
 
-import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryTypes.*;
-import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.*;
+import static org.stranger2015.hitalk.core.compiler.instructions.PrologRuntime.EMemoryType.*;
 import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.NUM;
+import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.REF;
 
 public class GetNumber implements Instruction {
 	private final int register;

@@ -13,13 +13,12 @@ class Term extends MemoryCell {
     public static final byte VAR = 0b0000000;
     public static final byte COMPOUND = 0b0100000;
     public static final byte LIST = 0b0110000;
-
-    public ListTerm value;
+    private int data;
 
     protected
-    Term ( ListTerm head ) {
+    Term ( int data ) {
         this();
-        value = head;
+        this.data = data;
     }
 
     /**
@@ -43,7 +42,6 @@ class Term extends MemoryCell {
             case LIS -> {
             }
         }
-
     }
 
     protected
@@ -65,14 +63,25 @@ class Term extends MemoryCell {
         return false;
     }
 
+    /**
+     * @return
+     */
     public
-    boolean isVar () {
-        return false;
+    boolean isAtom () {
+        return this instanceof AtomTerm;
     }
 
+    public abstract
+    boolean isPredicateIndicator ();
+
     public
+    boolean isVar () {
+        return this instanceof Variable;
+    }
+
+    public final
     boolean isNonVar () {
-        return false;
+        return !isVar();
     }
 
     /**
@@ -94,7 +103,7 @@ class Term extends MemoryCell {
 
     }
 
-    protected
+    public
     ListTerm getTail () {
         if(!isList()) {
             return null;
@@ -106,10 +115,11 @@ class Term extends MemoryCell {
 
     private
     boolean isList () {
+        return this instanceof ListTerm;
     }
-//
-//    public
-//    boolean lowerThan ( CellAddress hb ) {
-//        return super.lowerThan(hb);
-//    }
+
+    protected
+    Term getHead () {
+        return this;
+    }
 }

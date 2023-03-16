@@ -10,7 +10,7 @@ class Protocol extends Entity {
      * @param entityId
      */
     protected
-    Protocol ( byte kind, CompoundTerm entityId, IEnumerable protocol ) {
+    Protocol ( byte kind, PredicateIndicator entityId, IEnumerable protocol ) {
         super(kind, entityId, protocol);
     }
 }

@@ -11,7 +11,8 @@ class Qualifier extends CompoundTerm {
      */
     public
     Qualifier ( AtomTerm name, ListTerm args, AtomTerm name1 ) {
-        super(qualifiedName, nameArgs, arg2);
+        super();
+//        super(qualifiedName, nameArgs, arg2);
         this.name1 = name1;
     }
 

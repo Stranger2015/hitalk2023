@@ -12,7 +12,6 @@ class Operator {
      * @param specifier
      * @param priority
      */
-    @Contract(pure = true)
     public
     Operator ( AtomTerm name, AtomTerm specifier, int priority) {
         this.priority = priority;

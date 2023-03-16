@@ -14,5 +14,5 @@ public class TryMe implements Instruction{
 	}
 	
 	public int getArity(){ return arity; }
-	public String toString(){ return "try_me " + arity;	}
+	public String toString(){ return "try_me %d".formatted(arity);	}
 }

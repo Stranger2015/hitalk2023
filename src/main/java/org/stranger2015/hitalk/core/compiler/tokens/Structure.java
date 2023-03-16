@@ -1,19 +1,11 @@
 package org.stranger2015.hitalk.core.compiler.tokens;
 
-public class Structure implements CompileToken {
-	private int register;
-	private String functor;
-	private int arity;
-	
-	public Structure(int register, String functor, int arity){
-		this.register = register;
-		this.functor = functor;
-		this.arity = arity;
+public
+record Structure(int register, String functor, int arity) implements CompileToken {
+
+
+	public
+	String toString () {
+		return "<X%d = %s/%d>".formatted(register + 1, functor, arity);
 	}
-	
-	public int getRegister(){ return register; }
-	public int getArity(){ return arity; }
-	public String getFunctor(){ return functor; }
-	
-	public String toString(){ return "<X" + (register+1) + " = " + functor + "/" + arity + ">"; }
 }

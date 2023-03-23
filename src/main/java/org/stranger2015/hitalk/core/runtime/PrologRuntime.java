@@ -1,5 +1,6 @@
 package org.stranger2015.hitalk.core.runtime;
 
+import org.stranger2015.hitalk.core.*;
 import org.stranger2015.hitalk.core.compiler.instructions.Call;
 import org.stranger2015.hitalk.core.compiler.instructions.CallVariable;
 import org.stranger2015.hitalk.core.compiler.instructions.Instruction;
@@ -8,6 +9,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.function.Consumer;
 
 import static java.lang.Integer.parseInt;
 import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.REF;
@@ -24,6 +26,17 @@ class PrologRuntime {
     public static final int STACK = 1;
     public static final int TRAIL = 2;
     public static final int REGISTERS = 3;                // Types of memory
+
+    public static final AtomTerm USER = AtomTerm.createAtom("user");
+    public static final AtomTerm LOGTALK  = AtomTerm.createAtom("logtalk");
+
+    public final Map <String, AtomTerm> atomTable = new HashMap <>();
+    public final Map <PredicateIndicator, Entity> entityTable = new HashMap <>();
+    private final Map <PredicateIndicator, Consumer <PredicateIndicator>> directiveTable = new HashMap <>();
+    protected final Map <PredicateIndicator, PredicateDeclaration> predicateTable = new HashMap <>();
+
+    protected final Entity entity = new ModuleEntity(
+            new PredicateIndicator(USER, true, 0), null);
     private final CodeBase codebase;                      // Reference to the compiled code
     private final List <MemoryCell> heap = new ArrayList <>(); // Main memory space
     private final List <MemoryCell> registers = new ArrayList <>();    // The argument and X registers
@@ -31,7 +44,7 @@ class PrologRuntime {
     private final CellAddress h = new CellAddress();
     private final CellAddress hb = new CellAddress(); // Points to the top of the heap currently and at last made choicepoint
     private int tr;  // Trail pointer and choice point at moment of current clause call
-	private int b0;
+    private int b0;
     private boolean isInWriteMode = false; // Whether program instructions should write on the heap or not
     private boolean failed = false;        // Query could not be answered with yes. I.e. computer says ``no".
     private boolean finished = false;      // Whether the engine is finished with a query
@@ -51,6 +64,7 @@ class PrologRuntime {
     PrologRuntime ( CodeBase codebase ) {
         this.codebase = codebase;
         reset();
+//        Entity.initDirectives();
     }
 
     /**
@@ -192,7 +206,9 @@ class PrologRuntime {
     public
     CellAddress deref ( int domain, int frame, int index ) {
         MemoryCell cell = getCell(domain, frame, index);
-        if (cell.getType() == REF && !(cell.getPointerDomain() == domain && cell.getPointerFrame() == frame && cell.getPointerIndex() == index)) {
+        if (cell.getType() == REF && !(cell.getPointerDomain() == domain
+                &&
+                cell.getPointerFrame() == frame && cell.getPointerIndex() == index)) {
             return deref(cell.getPointerDomain(), cell.getPointerFrame(), cell.getPointerIndex());
         }
         else {
@@ -284,31 +300,31 @@ class PrologRuntime {
                 }
                 case LIS -> {
                     return unify(
-                                c1.getPointerDomain(),
-                                c1.getPointerFrame(),
-                                c1.getPointerIndex(),
-                                c2.getPointerDomain(),
-                                c2.getPointerFrame(),
-                                c2.getPointerIndex())
+                            c1.getPointerDomain(),
+                            c1.getPointerFrame(),
+                            c1.getPointerIndex(),
+                            c2.getPointerDomain(),
+                            c2.getPointerFrame(),
+                            c2.getPointerIndex())
                             &&
-                           unify(
-                                c1.getPointerDomain(),
-                                c1.getPointerFrame(),
-                                c1.getPointerIndex() + 1,
-                                c2.getPointerDomain(),
-                                c2.getPointerFrame(),
-                                c2.getPointerIndex() + 1);
+                            unify(
+                                    c1.getPointerDomain(),
+                                    c1.getPointerFrame(),
+                                    c1.getPointerIndex() + 1,
+                                    c2.getPointerDomain(),
+                                    c2.getPointerFrame(),
+                                    c2.getPointerIndex() + 1);
                 }
                 case STR -> {
                     CellAddress fn1 = new CellAddress(
-                                            c1.getPointerDomain(),
-                                            c1.getPointerFrame(),
-                                            c1.getPointerIndex()); // Go to FN cell.
+                            c1.getPointerDomain(),
+                            c1.getPointerFrame(),
+                            c1.getPointerIndex()); // Go to FN cell.
                     c1 = getCell(fn1.getDomain(), fn1.getFrame(), fn1.getIndex());
                     CellAddress fn2 = new CellAddress(
-                                            c2.getPointerDomain(),
-                                            c2.getPointerFrame(),
-                                            c2.getPointerIndex()); // Go to FN cell.
+                            c2.getPointerDomain(),
+                            c2.getPointerFrame(),
+                            c2.getPointerIndex()); // Go to FN cell.
                     c2 = getCell(fn2.getDomain(), fn2.getFrame(), fn2.getIndex());
                     if (c1.getFunctor().equals(c2.getFunctor()) && c1.getArgCount() == c2.getArgCount()) {
                         for (int i = 1; i <= c1.getArgCount(); i++) {
@@ -367,8 +383,6 @@ class PrologRuntime {
     }
 
     /**
-     *
-     *
      * @param arity
      */
     public
@@ -715,6 +729,7 @@ class PrologRuntime {
                 c++;
             }
         }
+
         return r.toString();
     }
 
@@ -732,6 +747,7 @@ class PrologRuntime {
                 c++;
             }
         }
+
         return r.toString();
     }
 
@@ -760,7 +776,7 @@ class PrologRuntime {
         r.append("Trace:\r\n");
         r.append("Next instruction: ")
                 .append(p_clause == null ? "none"
-                : p_clause.getInstruction(p_index)).append("\r\n");
+                        : p_clause.getInstruction(p_index)).append("\r\n");
         for (int i = trace.size() - 1; i >= 0; i--) {
             r.append(trace.get(i)).append("\r\n");
         }
@@ -857,5 +873,10 @@ class PrologRuntime {
         }
         //for(String s : bindings.keySet()) System.out.println(s+" = "+bindings.get(s));
         return bindings;
+    }
+
+    public
+    Map <PredicateIndicator, Consumer <PredicateIndicator>> getDirectiveTable () {
+        return directiveTable;
     }
 }

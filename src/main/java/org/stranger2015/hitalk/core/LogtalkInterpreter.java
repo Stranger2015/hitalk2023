@@ -7,10 +7,21 @@ import java.util.Deque;
 import java.util.List;
 import java.util.function.Function;
 
+/**
+ *
+ */
 public
 class LogtalkInterpreter extends PrologInterpreter{
+    /**
+     * @param runtime
+     * @param heap
+     * @param localStack
+     * @param trailStack
+     * @param codebase
+     * @param code
+     */
     public
     LogtalkInterpreter ( PrologRuntime runtime, List <Term> heap, Deque <Term> localStack, Deque <Term> trailStack, CodeBase codebase, Function <PredicateIndicator, Boolean> code ) {
-        super(runtime, heap, localStack, trailStack, codebase, code);
+        super(runtime, heap, localStack, trailStack, codebase, code, entity);
     }
 }

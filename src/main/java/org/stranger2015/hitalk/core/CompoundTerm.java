@@ -1,5 +1,8 @@
 package org.stranger2015.hitalk.core;
 
+/**
+ *
+ */
 public
 class CompoundTerm extends Term {
     protected ListTerm nameArgs;
@@ -10,9 +13,8 @@ class CompoundTerm extends Term {
     }
 
     public
-    CompoundTerm ( AtomTerm minus, int nameArgs ) {
-//       this.nameArgs = nameArgs;
-        super(nameArgs);
+    CompoundTerm ( AtomTerm name, int arity ){
+        super();
     }
 
     public
@@ -33,7 +35,7 @@ class CompoundTerm extends Term {
 
     public
     CompoundTerm ( AtomTerm name ) {
-        //ariry==0
+        //ariry==y0
     }
 
     public
@@ -46,10 +48,15 @@ class CompoundTerm extends Term {
 
     }
 
+    public
+    CompoundTerm ( AtomTerm name, RangeTerm rangeTerm ) {
+
+    }
+
     @Override
     public
     String toString () {
-        return "CompoundTerm{}";
+        return "CompoundTerm %s%s%d".formatted(getName(),"/", getArity());
     }
 
     /**
@@ -59,6 +66,15 @@ class CompoundTerm extends Term {
     public
     byte getKind () {
         return 0;
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    boolean isPredicateIndicator () {
+        return false;
     }
 
     /**
@@ -87,15 +103,24 @@ class CompoundTerm extends Term {
 
     public
     PredicateIndicator toPredicateIndicator ( boolean b ) {
-        return new PredicateIndicator((AtomTerm) nameArgs.getHead(), nameArgs.getTail().getLength());
+        return new PredicateIndicator((AtomTerm) nameArgs.getHead(),b, nameArgs.getTail().getLength());
     }
 
     /**
      * @return
      */
     public
-    int getArity () {
-        return nameArgs.getArgCount() - 1;
+    RangeTerm getArity () {
+        return nameArgs.getTail().getArityRange();
+    }
+
+    /**
+     *
+     * @return
+     */
+    public
+    RangeTerm getArityRange () {
+        return nameArgs.getTail().getLength();
     }
 
     /**

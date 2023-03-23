@@ -18,8 +18,6 @@ package org.stranger2015.hitalk.core;
  * Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
  */
 
-import org.jetbrains.annotations.Contract;
-
 import java.util.*;
 import java.util.Map.Entry;
 

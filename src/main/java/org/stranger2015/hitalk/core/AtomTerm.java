@@ -8,6 +8,9 @@ class AtomTerm extends CompoundTerm implements IAtomic {
     public static final AtomTerm IMPLIES = createAtom(":-");
     public static final AtomTerm BYPASS = createAtom("{}");
     public static final AtomTerm MINUS = createAtom("-");
+    public static final AtomTerm STATIC = createAtom("static");
+    public static final AtomTerm DYNAMIC = createAtom("dynamic");
+    public static final AtomTerm ENCODING = createAtom("encoding");
 
     /**
      *

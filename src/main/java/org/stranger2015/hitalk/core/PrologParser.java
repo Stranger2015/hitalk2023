@@ -2,21 +2,21 @@ package org.stranger2015.hitalk.core;
 
 import org.stranger2015.hitalk.core.compiler.PrologInputStream;
 
-import java.io.*;
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.regex.Pattern;
 
-import static org.stranger2015.hitalk.core.AtomTerm.*;
+import static java.lang.Integer.*;
+import static java.lang.String.valueOf;
+import static org.stranger2015.hitalk.core.AtomTerm.createAtom;
 import static org.stranger2015.hitalk.core.ListTerm.EMPTY_LIST;
 import static org.stranger2015.hitalk.core.OperatorManager.OP_HIGH;
 import static org.stranger2015.hitalk.core.OperatorManager.OP_LOW;
 import static org.stranger2015.hitalk.core.Tokenizer.*;
-import static org.stranger2015.hitalk.core.Tokenizer.ATOM;
-import static org.stranger2015.hitalk.core.Tokenizer.FLOAT;
-import static org.stranger2015.hitalk.core.Tokenizer.INTEGER;
-import static org.stranger2015.hitalk.core.Tokenizer.VARIABLE;
 
 /**
  * This class defines a parser of prolog terms and sentences.
@@ -50,13 +50,19 @@ class PrologParser implements Serializable {
     public static final AtomTerm END_OF_FILE = createAtom("end_of_file");
     private PrologInputStream stream;
 
+    /**
+     * @param stream
+     * @throws IOException
+     */
     public
     void setStream ( PrologInputStream stream ) throws IOException {
         this.stream.close();
         this.stream = stream;
-        this.stream = stream;
     }
 
+    /**
+     * @return
+     */
     public
     PrologInputStream getStream () {
         return stream;
@@ -78,7 +84,8 @@ class PrologParser implements Serializable {
 
         public
         IdentifiedTerm ( int priority, CompoundTerm compoundTerm ) {
-
+            this.priority = priority;
+            result = (AtomTerm) compoundTerm;//check
         }
     }
 
@@ -131,8 +138,13 @@ class PrologParser implements Serializable {
      * @return
      */
     public
-    Iterator <Term> iterator () {
+    Iterator <Term> termIterator () {
         return new TermIterator(this);
+    }
+
+    public
+    Iterator <Entity> entityIterator () {
+        return new PrologEntityIterator(this);
     }
 
     /**
@@ -159,7 +171,6 @@ class PrologParser implements Serializable {
             if (term == null) {
                 throw new IllegalArgumentException("The parser is unable to finish.");
             }
-
             if (endNeeded && tokenizer.readToken().getType() != END) {
                 throw new IllegalArgumentException("The term %s is not ended with a period.".formatted(term));
             }
@@ -340,7 +351,7 @@ class PrologParser implements Serializable {
             if (f.seq.equals("-")) {
                 Token t = tokenizer.readToken();
                 if (t.isNumber()) {
-                    return new IdentifiedTerm(0, PrologParser.createNumber("-" + t.seq));
+                    return new IdentifiedTerm(0, createNumber("-%s".formatted(t.seq)));
                 }
                 else {
                     tokenizer.unreadToken(t);
@@ -385,6 +396,16 @@ class PrologParser implements Serializable {
         return new IdentifiedTerm(0, expr0(a));
     }
 
+    private
+    NumberTerm createNumber ( String s ) {
+        try {
+            return parseInteger(s);
+        } catch (RuntimeException e) {
+            parseDouble(s);
+
+        }
+    }
+
     /**
      * exprA(0) ::= integer |
      * float |
@@ -400,11 +421,11 @@ class PrologParser implements Serializable {
         Token t1 = tokenizer.readToken();
 
         if (t1.isType(INTEGER)) {
-            return PrologParser.parseInteger(t1.seq); //todo moved method to Number
+            return parseInteger(t1.seq); //todo moved method to Number
         }
 
         if (t1.isType(FLOAT)) {
-            return PrologParser.parseFloat(t1.seq);   //todo moved method to Number
+            return parseDouble(t1.seq);   //todo moved method to Number
         }
 
         if (t1.isType(VARIABLE)) {
@@ -419,7 +440,7 @@ class PrologParser implements Serializable {
             String functor = t1.seq;
             Token t2 = tokenizer.readToken();   //reading left par
             if (!t2.isType(LPAR)) {
-                throw new IllegalArgumentException("bug in parsing process. Something identified as functor misses its first left parenthesis");//todo check can be skipped
+                throw new IllegalArgumentException("bug in parsing process. Something identified as functor misses its first left parenthesis".formatted());//todo check can be skipped
             }
             List <AtomTerm> listTerm = expr0_arglist();     //reading arguments
             Token t3 = tokenizer.readToken();
@@ -443,11 +464,12 @@ class PrologParser implements Serializable {
             if (t2.isType(RBRA)) {
                 AtomTerm qualifiedName = null;
                 Term arg2 = null;
+
                 return new CompoundTerm(qualifiedName, createAtom("::"), arg2);
             }
 
             tokenizer.unreadToken(t2);
-            AtomTerm term = expr0_list();
+            AtomTerm term = (AtomTerm) expr0_list();
             if (tokenizer.readToken().isType(RBRA)) {
                 return term;
             }
@@ -456,7 +478,7 @@ class PrologParser implements Serializable {
 
         if (t1.isType(LBRA2)) {
             Token t2 = tokenizer.readToken();
-            ListTerm nameArgs= EMPTY_LIST;
+            ListTerm nameArgs = EMPTY_LIST;
             if (t2.isType(RBRA2)) {
                 return new CompoundTerm(nameArgs.getName());
             }
@@ -475,7 +497,7 @@ class PrologParser implements Serializable {
 
     //todo make non-recursive?
     private
-    AtomTerm expr0_list () throws IllegalArgumentException, IOException {
+    CompoundTerm expr0_list () throws IllegalArgumentException, IOException {
         AtomTerm head = expr(true);
         Token t = tokenizer.readToken();
         ListTerm nameArgs = null;
@@ -514,18 +536,18 @@ class PrologParser implements Serializable {
     // commodity methods to parse numbers
 
     static
-    Number parseInteger ( String s ) {
+    NumberTerm parseInteger ( String s ) {
         long num = Long.parseLong(s);
-        if (num > Integer.MIN_VALUE && num < Integer.MAX_VALUE) {
-            return Integer.parseInt(String.valueOf(num));
+        if (num > MIN_VALUE && num < MAX_VALUE) {
+            return new IntTerm(parseInt(valueOf(num)));
         }
         else {
-            return num;
+            return new IntTerm((int) num);
         }
     }
 
     static
-    double parseFloat ( String s ) {
+    double parseDouble ( String s ) {
         return Double.parseDouble(s);
     }
 

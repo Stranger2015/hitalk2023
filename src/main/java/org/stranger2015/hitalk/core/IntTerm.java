@@ -23,6 +23,18 @@ class IntTerm extends Term {
         return 0;
     }
 
+    @Override
+    public
+    boolean isPredicateIndicator () {
+        return false;
+    }
+
+    @Override
+    public
+    boolean isAtomic () {
+        return false;
+    }
+
     /**
      * @return
      */
@@ -34,6 +46,6 @@ class IntTerm extends Term {
 
     public
     ListTerm getInt () {
-        return value;
+        return null;
     }
 }

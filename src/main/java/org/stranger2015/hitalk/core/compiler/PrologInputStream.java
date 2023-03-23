@@ -1,10 +1,9 @@
 package org.stranger2015.hitalk.core.compiler;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.io.*;
 import java.nio.charset.Charset;
-import java.nio.charset.StandardCharsets;
+
+import static java.nio.charset.StandardCharsets.*;
 
 /**
  * Equivalent to read_term/3, but sets options according to the current compilation context and
@@ -40,12 +39,12 @@ class PrologInputStream extends InputStreamReader {
      * @see Charset#defaultCharset()
      */
     public
-    PrologInputStream ( @NotNull InputStream in ) {
+    PrologInputStream ( InputStream in ) {
         super(in);
     }
 
     public
     PrologInputStream ( String st ) {
-        super(new ByteArrayInputStream(st.getBytes(StandardCharsets.UTF_8)));
+        super(new ByteArrayInputStream(st.getBytes(UTF_8)));
     }
 }

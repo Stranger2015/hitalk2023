@@ -26,6 +26,7 @@ class Preprocessor {
         transformers.add(new TermExpander());
         transformers.add(new GoalExpander());
         transformers.add(new Flattener());
+        transformers.add(new Binarizer());
 
         this.clause = clause;
     }

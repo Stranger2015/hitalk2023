@@ -1,7 +1,5 @@
 package org.stranger2015.hitalk.core;
 
-import org.jetbrains.annotations.NotNull;
-
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,7 +53,7 @@ class ListTerm extends CompoundTerm {
      * @param head
      * @return
      */
-    private @NotNull
+    private
     ListTerm prepend ( Term head ) {
         return new ListTerm(head);
     }
@@ -66,8 +64,8 @@ class ListTerm extends CompoundTerm {
 //    }
 //
     public
-    int getLength () {
-        int result = 0;
+   RangeTerm getLength () {
+        RangeTerm result = new RangeTerm(0,0);
         Term h = this.head;
 //        Term t = this.value;
 

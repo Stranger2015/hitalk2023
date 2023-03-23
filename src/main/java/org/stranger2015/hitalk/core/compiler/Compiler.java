@@ -282,7 +282,7 @@ public class Compiler {
     List <CompilerToken> tokenizeFactString( String fact) {
 //        ANTLRInputStream stream = new ANTLRInputStream(fact);
 //        Map<String, List<List<CompileToken>>> map = visitor(stream).getTokens();
-//        return map.get(map.keySet().iterator().next()).get(0);
+//        return map.get(map.keySet().termIterator().next()).get(0);
     }
 
 //    /**

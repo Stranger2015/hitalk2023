@@ -13,22 +13,15 @@ import static org.stranger2015.hitalk.core.PrologInterpreter.BodyState.*;
  */
 public
 class PrologInterpreter {
-    public static final AtomTerm TRUE = AtomTerm.createAtom("true");
-    public static final AtomTerm USER = AtomTerm.createAtom("user");
     /**
      *
      */
-    protected PrologRuntime runtime;
+    protected final PrologRuntime runtime;
     private final List <Term> heap;
     private final Deque <Term> localStack;
     private final Deque <Term> trailStack;
     private final CodeBase codebase;
-    private final Function <PredicateIndicator, Boolean> code;
-
-    public static final Map <String, AtomTerm> atomTable = new HashMap <>();
-        protected final Map <PredicateIndicator, Entity> entityTable = new HashMap <>();
-    protected final Map <PredicateIndicator, Predicate> predicateTable = new HashMap <>();
-    protected Entity entity = new PrologModule((byte) 0, new PredicateIndicator(USER, 0), null);
+    private final Entity entity;
 
     /**
      *
@@ -48,21 +41,30 @@ class PrologInterpreter {
     private static final String STATIC = "static";
     private static final String DYNAMIC = "dynamic";
 
+    /**
+     * @param runtime
+     * @param heap
+     * @param localStack
+     * @param trailStack
+     * @param codebase
+     * @param code
+     * @param entity
+     */
     public
     PrologInterpreter ( PrologRuntime runtime,
                         List <Term> heap,
                         Deque <Term> localStack,
                         Deque <Term> trailStack,
                         CodeBase codebase,
-                        Function <PredicateIndicator, Boolean> code ) {
+                        Function <PredicateIndicator, Boolean> code, Entity entity ) {
 
         this.runtime = runtime;
         this.heap = heap;
         this.localStack = localStack;
         this.trailStack = trailStack;
         this.codebase = codebase;
-        this.code = code;
-
+        this.entity = entity;
+//        this.code = code;
         runtime.reset();
     }
 
@@ -134,7 +136,7 @@ class PrologInterpreter {
         // Entity entity = entityTable.get(entityId);
         CompoundTerm goal = null;
         PredicateIndicator predicateIndicator = goal.toPredicateIndicator(true);
-        pdef = (PredicateDefinition) getEntity().getPredicateDeclTable().get(predicateIndicator);
+        pdef = (PredicateDefinition) entity.getPredicateDeclTable().get(predicateIndicator);
         List <Clause> code = pdef.getCode();
         Predicate predicate = (Predicate) entity.getPredicate(predicateIndicator);
         IProperty property = predicate.getProperty(BUILT_IN);
@@ -143,7 +145,7 @@ class PrologInterpreter {
             List <Clause> clauses = code.subList(1, code.size());
             if (unify(clause.getHead(), goal)) {
                 ListTerm body = (ListTerm) clause.getBody();
-                int len = body.getLength();
+                RangeTerm len = body.getLength();
                 if (len == 0) {
                     state = EXIT;
                 }

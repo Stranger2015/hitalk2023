@@ -1,5 +1,8 @@
 package org.stranger2015.hitalk.core.compiler;
 
+/**
+ *
+ */
 public
 class Flattener implements ITransformer {
     /**
@@ -11,7 +14,7 @@ class Flattener implements ITransformer {
     flatten();
     }
 
-    private
+    public
     void flatten () {
 
     }

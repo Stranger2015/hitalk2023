@@ -36,8 +36,14 @@ class Predicate implements IPropertyOwner {
         return name;
     }
 
+    /**
+     * @param name
+     * @return
+     */
     public
     IProperty getProperty ( String name ) {
         return props.get(name);
     }
+
+
 }

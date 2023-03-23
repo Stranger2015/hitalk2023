@@ -68,7 +68,6 @@ class TermExpander implements ITransformer {
     /**
      * @param term
      */
-    @Contract(pure = true)
     private
     void push ( Term term ) {
         termsToExpand.add(term);

@@ -1,1 +1,3 @@
+include 'enumus:enumus'
+findProject(':enumus:enumus')?.name = 'enumus'
 

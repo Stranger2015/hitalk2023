@@ -41,6 +41,7 @@ class Term extends MemoryCell {
             }
             case LIS -> {
             }
+            default -> throw new IllegalStateException("Unexpected value: %s".formatted(type));
         }
     }
 
@@ -73,6 +74,9 @@ class Term extends MemoryCell {
 
     public abstract
     boolean isPredicateIndicator ();
+
+    public abstract
+    boolean isAtomic ();
 
     public
     boolean isVar () {

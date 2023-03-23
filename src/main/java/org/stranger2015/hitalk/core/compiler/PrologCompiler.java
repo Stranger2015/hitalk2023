@@ -1,17 +1,17 @@
 package org.stranger2015.hitalk.core.compiler;
 
-import org.jetbrains.annotations.Contract;
-import org.jetbrains.annotations.NotNull;
-import org.jetbrains.annotations.Nullable;
 import org.stranger2015.hitalk.core.*;
 import org.stranger2015.hitalk.core.compiler.instructions.Instruction;
+import org.stranger2015.hitalk.core.runtime.CodeBase;
+import org.stranger2015.hitalk.core.runtime.PrologRuntime;
 
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.*;
-import java.util.function.Consumer;
+import java.util.Map.Entry;
 
 import static org.stranger2015.hitalk.core.AtomTerm.IMPLIES;
+import static org.stranger2015.hitalk.core.ListTerm.*;
 import static org.stranger2015.hitalk.core.PrologParser.END_OF_FILE;
 
 /**
@@ -240,10 +240,12 @@ import static org.stranger2015.hitalk.core.PrologParser.END_OF_FILE;
  * list_WAM_code([]).
  */
 public
-class PrologCompiler {
-    public final Map <PredicateIndicator, Consumer <PredicateIndicator>> directives = new HashMap <>();
+class PrologCompiler extends PrologRuntime {
+
     protected final PrologParser parser;
-    protected final TermIterator iterator;
+    protected final TermIterator termIterator;
+    protected final PrologEntityIterator prologEntityIterator;
+    protected final CodeBase codeBase;
     protected Preprocessor preprocessor;
     /**
      *
@@ -253,16 +255,20 @@ class PrologCompiler {
 
     private CompoundTerm termExpansion = new CompoundTerm("term_expansion", 2);
     private CompoundTerm goalExpansion = new CompoundTerm("goal_expansion", 2);
-protected
-   TermExpander
+
     /**
      * @param parser
+     * @param codeBase
      */
     public
-    PrologCompiler ( PrologParser parser, Preprocessor preprocessor ) {
+    PrologCompiler ( PrologParser parser, Preprocessor preprocessor, CodeBase codeBase ) {
+        super(codeBase);
+
         this.parser = parser;
-        iterator = (TermIterator) parser.iterator();
+        termIterator = (TermIterator) parser.termIterator();
+        prologEntityIterator = (PrologEntityIterator) parser.entityIterator();
         this.preprocessor = preprocessor;
+        this.codeBase = codeBase;
     }
 
     /**
@@ -273,6 +279,32 @@ protected
         for (String file : files) {
             compileFile(file);
         }
+    }
+
+    /**
+     * @param entityTable
+     */
+    public void compileEntities(Map<PredicateIndicator, Entity> entityTable){
+        for (Entry <PredicateIndicator, Entity> entry : entityTable.entrySet()) {
+//            PredicateIndicator predicateIndicator = entry.getKey();
+            Entity entity = entry.getValue();
+            compileEntity(entity);
+        }
+    }
+
+    /**
+     * @param entity
+     */
+  public void compileEntity(Entity entity){
+      var predDeclTable = entity.getPredicateDeclTable();
+      for (Entry <PredicateIndicator, PredicateDeclaration> predicateDeclEntry : predDeclTable.entrySet()) {
+          var key = predicateDeclEntry.getKey();
+          var pdecl = predicateDeclEntry.getValue();
+
+          if (pdecl instanceof PredicateDefinition){
+              PredicateDefinition pdef=new PredicateDefinition(key);
+          }
+      }
     }
 
     /**
@@ -288,7 +320,6 @@ protected
             }
             clause = preprocess(clause);
             compileClause(clause);
-//            WAM wamCode = generateWamCode(clause);
         }
     }
 
@@ -306,11 +337,11 @@ protected
     }
 
     /**
+     *
      * @param head
      * @return
      */
-    @Contract(pure = true)
-    private @NotNull
+    private
     List <Instruction> compileHead ( Term head ) {
         List <Instruction> l = new ArrayList <>();
 
@@ -321,8 +352,7 @@ protected
      * @param body
      * @return
      */
-    @Contract(pure = true)
-    private @NotNull
+    private
     List <Instruction> compileBody ( Term body ) {
         List <Instruction> l = new ArrayList <>();
 
@@ -332,24 +362,36 @@ protected
     /**
      * @return
      */
-    private
+    public
     Clause readClause ( PrologInputStream stream, TermOptions options ) throws IOException {
         Term head;
         ListTerm body;
+        Clause flattenClause;
         while (true) {
             Term t = readTerm(stream, options);
             if (t.isCompound()) {
                 CompoundTerm c = (CompoundTerm) t;
                 if (c.getName() == IMPLIES) {
                     ListTerm args = c.getArgs();
-                    if (args.getLength() == 1) {
-                        callDirective(args.getHead());
+                    RangeTerm length = args.getLength();
+                    if(length instanceof RangeTerm) {
+                        int arity=0;
+                        if (length.getArityLow()==length.getArityHigh()){
+                            arity  = length.getArityLow();
+                            if (arity == 1){
+                                callDirective(args.getHead());
+                                continue;
+                            }else  if (arity==2){
+                                head= args.getArg(0);
+                            }
+                        }
+
                         continue;
                     }
                     if (args.getLength() == 2) {
                         head = args.getArg(0);
                         body = args.getTail();
-                        Clause flattenClause = flatten(head, body);
+                        flattenClause = flatten(head, body);
                         break;
                     }
                     else {
@@ -383,12 +425,12 @@ protected
     }
 
     /**
+     *
      * @param additions
      * @param term
      * @return
      */
-    @Contract(pure = true)
-    private @Nullable
+    private
     List <Term> flattenTerm ( List <Term> additions, Term term ) {
         return null;
     }
@@ -398,7 +440,7 @@ protected
      * @param clause
      * @return
      */
-    private @NotNull
+    private
     Clause preprocess ( Clause clause ) {
         clause = expandGoal(clause);
 
@@ -412,15 +454,14 @@ protected
     private
     Clause expandGoal ( Clause clause ) {
         ListTerm body = (ListTerm) clause.getBody();
-        if (body == ListTerm.EMPTY_LIST) {
-            //true????????
+        if (body != EMPTY_LIST) {
+            while (true) {
+                CompoundTerm head = (CompoundTerm) body.getHead();
+            }
+        } else {
         }
-        while (true) {
-            CompoundTerm head = (CompoundTerm) body.getHead();
-//            @NotNull Deque <Term> Termsexpand = call(goalExpansion, head);
-//
-        }
-  //      return null;
+
+        return clause;
     }
 
     /**
@@ -432,15 +473,14 @@ protected
     private
     Term readTerm ( PrologInputStream stream, TermOptions options ) throws IOException {
         parser.setStream(stream);
-        Term t = iterator.next();
+        Term t = termIterator.next();
         List <Term> l = expandTerm(t);
         t = l.remove(0);
 
         return t;
     }
 
-    @Contract(pure = true)
-    private @NotNull
+   // private @NotNull
     List <Term> expandTerm ( Term t ) {
         return call(AtomTerm.createAtom("term_expansion"));
     }
@@ -457,9 +497,8 @@ protected
      * @param terms
      * @return
      */
-    @Contract(value = "_ -> new", pure = true)
-    private @NotNull
-    List <Term> call ( Term... terms ) {
+    //private @NotNull
+    public List <Term> call ( Term... terms ) {
 
         return new ArrayList <>();
     }
@@ -469,7 +508,7 @@ protected
      */
     public
     Term readTerm ( PrologInputStream in, ListTerm options ) {
-TermIterator iterator = (TermIterator) parser.iterator();
+    TermIterator iterator = (TermIterator) parser.termIterator();
 
     return null;
     }

@@ -1,25 +1,42 @@
 package org.stranger2015.hitalk.core;
 
-import org.jetbrains.annotations.Contract;
+import java.util.Map;
 
 import static org.stranger2015.hitalk.core.AtomTerm.createAtom;
-import static org.stranger2015.hitalk.core.PredicateIndicator.Qualifier.DOUBLE_SLASH;
-import static org.stranger2015.hitalk.core.PredicateIndicator.Qualifier.SLASH;
+import static org.stranger2015.hitalk.core.PredicateIndicator.EQualifier.DOUBLE_SLASH;
+import static org.stranger2015.hitalk.core.PredicateIndicator.EQualifier.SLASH;
 
 /**
  *
  */
 public
 class PredicateIndicator extends CompoundTerm {
+
+    private final AtomTerm name;
+    private final RangeTerm range;
+    private final boolean slash;
+    private Map <PredicateIndicator, PredicateDeclaration> predicateDeclTable;
+
+
+    /**
+     * @param name
+     * @param arity
+     */
     public
-    PredicateIndicator ( AtomTerm head, int arity ) {
-        super(head, arity);
+    PredicateIndicator ( AtomTerm name,boolean slash ,int arity) {
+        super(name, new CompoundTerm(slash ? SLASH.getAtomTerm() : DOUBLE_SLASH.getAtomTerm(), 2), arity));
+        this.slash = slash;
     }
 
-    @Override
+    /**
+     * @param name
+     * @param slash
+     * @param rangeTerm
+     */
     public
-    AtomTerm getName () {
-        return name;
+    PredicateIndicator ( AtomTerm name, boolean slash, RangeTerm rangeTerm) {
+        super(name, slash ? SLASH.getAtomTerm() : DOUBLE_SLASH.getAtomTerm(), rangeTerm);
+        this.slash = slash;
     }
 
     /**
@@ -27,14 +44,14 @@ class PredicateIndicator extends CompoundTerm {
      */
     @Override
     public
-    int getArity () {
-        return arity;
+    AtomTerm getName () {
+        return name;
     }
 
     /**
      *
      */
-    enum Qualifier {
+    enum EQualifier {
         SLASH(createAtom("/")),
         DOUBLE_SLASH(createAtom("//")),
         ;
@@ -44,7 +61,7 @@ class PredicateIndicator extends CompoundTerm {
         /**
          * @param atomTerm
          */
-        Qualifier ( AtomTerm atomTerm ) {
+        EQualifier ( AtomTerm atomTerm ) {
             this.atomTerm = atomTerm;
         }
 
@@ -57,18 +74,12 @@ class PredicateIndicator extends CompoundTerm {
         }
     }
 
-    private final AtomTerm name;
-    private final int arity;
-
-    /**
-     * @param name
-     * @param arity
-     */
-    public
-    PredicateIndicator ( AtomTerm name, boolean slash, int arity ) {
-        super(qualifiedName, name, arg2);
-
-        this.name = slash ? SLASH.getAtomTerm() : DOUBLE_SLASH.getAtomTerm();
-        this.arity = arity;
-    }
+//    /**
+//     * @param name
+//     * @param arity
+//     */
+//    public
+//    PredicateIndicator ( AtomTerm name, boolean slash, int arity ) {
+//        super(slash ? SLASH.getAtomTerm() : DOUBLE_SLASH.getAtomTerm(), arity);
+//    }
 }

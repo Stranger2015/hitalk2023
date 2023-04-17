@@ -1,5 +1,6 @@
 package org.stranger2015.hitalk.core.compiler;
 
+import org.jetbrains.annotations.NotNull;
 import org.stranger2015.hitalk.core.Clause;
 import org.stranger2015.hitalk.core.CompoundTerm;
 import org.stranger2015.hitalk.core.ListTerm;
@@ -43,7 +44,7 @@ class Preprocessor {
      * @param clause
      * @return
      */
-    private
+    private @NotNull
     Clause flatten ( Clause clause ) {
         CompoundTerm flattenHead = (CompoundTerm) flatten(clause.getHead());
         ListTerm flattenBody = (ListTerm) flatten(clause.getBody());

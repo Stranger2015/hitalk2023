@@ -49,11 +49,11 @@ class Term extends MemoryCell {
     Term () {
     }
 
-    /**
-     * @return
-     */
-    abstract public
-    byte getKind ();
+//    /**
+//     * @return
+//     */
+//    abstract public
+//    byte getKind ();
 
     public
     void resolveTerm () {

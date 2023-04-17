@@ -1,7 +1,5 @@
 package org.stranger2015.hitalk.core.compiler;
 
-import org.jetbrains.annotations.Contract;
-import org.stranger2015.hitalk.core.AtomTerm;
 import org.stranger2015.hitalk.core.ListTerm;
 import org.stranger2015.hitalk.core.Term;
 

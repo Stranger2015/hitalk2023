@@ -9,8 +9,8 @@ import java.util.NoSuchElementException;
  *
  */
 public
-class PrologEntityIterator implements Iterator <Entity> {
-    protected final List <Entity> entities = new ArrayList <>();
+class PrologEntityIterator implements Iterator <Entity<?>> {
+    protected final List <Entity<?>> entities = new ArrayList <>();
     protected final PrologParser parser;
 
     /**
@@ -42,7 +42,7 @@ class PrologEntityIterator implements Iterator <Entity> {
      */
     @Override
     public
-    Entity next () {
+    Entity<?> next () {
         return null;
     }
 
@@ -50,8 +50,8 @@ class PrologEntityIterator implements Iterator <Entity> {
      * @return
      */
     public
-    Entity nextModule () {
-        Entity entity;
+    Entity<?> nextModule () {
+        Entity<?> entity;
         while (this.hasNext()) {
             entity = this.next();
             if (entity instanceof ModuleEntity) {

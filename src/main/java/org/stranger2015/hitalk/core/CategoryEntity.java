@@ -1,32 +1,42 @@
 package org.stranger2015.hitalk.core;
 
-import java.util.ArrayList;
-import java.util.HashMap;
+import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
 
+import static org.stranger2015.hitalk.core.AtomTerm.createAtom;
+import static org.stranger2015.hitalk.core.Relation.ERelation.*;
+
 /**
  *
+ * implements_protocols
+ * extends_categories
+ * complements_objects
  */
 public
-class CategoryEntity extends Entity {
+class CategoryEntity<T extends CategoryEntity<T>> extends Entity<T> {
+    public final EnumMap <Relation.ERelation, CompoundTerm> map = new EnumMap <>(Relation.ERelation.class);
 
-    private final List <Relation> relations = new ArrayList <>();
-    private final List <Directive> directives = new ArrayList <>();
-//    private final List <Clause> clauses = new ArrayList <>();
-    private final Map <AtomTerm, IProperty> properties = new HashMap <>();
+    void initRelations(Map <Relation.ECatgory CompoundTerm> map) {
+        map.put(EXTENDS, createAtom("extends"));
+        map.put(IMPLEMENTS, createAtom("implements"));
+        map.put(COMPLEMENTS, createAtom("implerments"));3
+
+    }
 
     /**
      * @param entityId
      * @param relations
      * @param directives
+     * @param predicate
      */
     protected
     CategoryEntity ( PredicateIndicator entityId,
-                     List <Relation> relations,
-                     List <Directive> directives
+                     List <Relation<T>> relations,
+                     List <Directive> directives,
+                     Predicate predicate
     ) {
-        super(entityId, relations, directives);
+        super(entityId, relations, directives, predicate);
     }
 
     /**
@@ -38,13 +48,29 @@ class CategoryEntity extends Entity {
         return null;
     }
 
-    public
-    List <Relation> getRelations () {
-        return relations;
-    }
-
+    /**
+     * @return
+     */
+    @Override
     public
     List <Directive> getDirectives () {
         return directives;
+    }
+
+    /**
+     *
+     */
+    @Override
+    public
+    void initDirectives () {
+    }
+
+    /**
+     * @return
+     */
+    @Override
+    public
+    Map <AtomTerm, IProperty> getProperties () {
+        return properties;
     }
 }

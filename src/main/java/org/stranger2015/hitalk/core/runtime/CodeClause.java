@@ -1,5 +1,7 @@
 package org.stranger2015.hitalk.core.runtime;
 
+import org.stranger2015.hitalk.core.PredicateIndicator;
+import org.stranger2015.hitalk.core.ProtocolEntity;
 import org.stranger2015.hitalk.core.compiler.instructions.Fail;
 import org.stranger2015.hitalk.core.compiler.instructions.Instruction;
 
@@ -15,7 +17,7 @@ class CodeClause {
     private CodeClause previous = null;
     private boolean retracted = false;
     private List <Instruction> instructions = new ArrayList <>();
-    private static final Instruction fail = new Fail();        // Special fail instruction when a predicate cannot be found
+    private static final Instruction fail = new Fail(); // Special fail instruction when a predicate cannot be found
     private String prologString = "";
 
     /**
@@ -154,7 +156,7 @@ class CodeClause {
         reset();
     }
 
-    public String belongsTo; // for debugging
+    public PredicateIndicator belongsTo; // for debugging
 
     /**
      * @return
@@ -167,6 +169,7 @@ class CodeClause {
             s.append("\t %d: %s\r\n".formatted(c, i));
             c++;
         }
+
         return s.toString();
     }
 }

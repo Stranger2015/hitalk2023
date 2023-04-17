@@ -10,6 +10,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Consumer;
+import java.util.stream.IntStream;
 
 import static java.lang.Integer.parseInt;
 import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.REF;
@@ -21,40 +22,40 @@ import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.R
  */
 public
 class PrologRuntime {
-
     public static final int HEAP = 0;
     public static final int STACK = 1;
     public static final int TRAIL = 2;
-    public static final int REGISTERS = 3;                // Types of memory
 
+    public static final int REGISTERS = 3;                // Types of memory
     public static final AtomTerm USER = AtomTerm.createAtom("user");
     public static final AtomTerm LOGTALK  = AtomTerm.createAtom("logtalk");
+    public static final AtomTerm HITALK  = AtomTerm.createAtom("hitalk");
 
-    public final Map <String, AtomTerm> atomTable = new HashMap <>();
-    public final Map <PredicateIndicator, Entity> entityTable = new HashMap <>();
-    private final Map <PredicateIndicator, Consumer <PredicateIndicator>> directiveTable = new HashMap <>();
-    protected final Map <PredicateIndicator, PredicateDeclaration> predicateTable = new HashMap <>();
+    public final Map <PredicateIndicator, Entity<?>> entityTable = new HashMap <>();
+    protected final Map <PredicateIndicator, Consumer <PredicateIndicator>> directiveTable = new HashMap <>();
+    protected final Map <PredicateIndicator, PredicateDeclaration> predicateDeclTable = new HashMap <>();
 
-    protected final Entity entity = new ModuleEntity(
-            new PredicateIndicator(USER, true, 0), null);
-    private final CodeBase codebase;                      // Reference to the compiled code
-    private final List <MemoryCell> heap = new ArrayList <>(); // Main memory space
-    private final List <MemoryCell> registers = new ArrayList <>();    // The argument and X registers
-    private final List <CellAddress> trail = new ArrayList <>();        // Bound variables
-    private final CellAddress h = new CellAddress();
-    private final CellAddress hb = new CellAddress(); // Points to the top of the heap currently and at last made choicepoint
-    private int tr;  // Trail pointer and choice point at moment of current clause call
-    private int b0;
+    protected final Entity<?> entity = new ModuleEntity(
+            new PredicateIndicator(USER, new RangeTerm(0,0), null));
+    protected final CodeBase codebase;                      // Reference to the compiled code
+    protected final List <MemoryCell> heap = new ArrayList <>(); // Main memory space
+    protected final List <MemoryCell> registers = new ArrayList <>();    // The argument and X registers
+    protected final List <CellAddress> trail = new ArrayList <>();        // Bound variables
+    protected final CellAddress h = new CellAddress();
+    protected final CellAddress hb = new CellAddress(); // Points to the top of the heap currently
+                                                        // and at last made choicepoint
+    protected int tr;  // Trail pointer and choice point at moment of current clause call
+    protected int b0;
     private boolean isInWriteMode = false; // Whether program instructions should write on the heap or not
     private boolean failed = false;        // Query could not be answered with yes. I.e. computer says ``no".
     private boolean finished = false;      // Whether the engine is finished with a query
-    private int s;                         // Points to arguments of a predicate that is being unified
+    protected int s;                         // Points to arguments of a predicate that is being unified
     protected final FrameStack frameStack = new FrameStack(); // Stack of environments and choice points
-    private CodeClause p_clause = null;
-    private CodeClause cp_clause = null;   // Current code clause
-    private int p_index;                    // Current index in the clause
-    private int cp_index;                   // Current index in the clause
-    private final List <String> trace = new ArrayList <>();  // For the gui, trace of instructions + some other outputs
+    protected CodeClause p_clause = null;
+    protected CodeClause cp_clause = null;   // Current code clause
+    protected int p_index;                    // Current index in the clause
+    protected int cp_index;                   // Current index in the clause
+    protected final List <String> trace = new ArrayList <>();  // For the gui, trace of instructions + some other outputs
     private boolean debugMode = false;                       // Whether engine is in debug mode.
 
     /**
@@ -64,7 +65,6 @@ class PrologRuntime {
     PrologRuntime ( CodeBase codebase ) {
         this.codebase = codebase;
         reset();
-//        Entity.initDirectives();
     }
 
     /**
@@ -275,7 +275,7 @@ class PrologRuntime {
     }
 
     CellAddress a1 = new CellAddress();
-    CellAddress a2 = new CellAddress();
+    CellAddress a2 = new CellAddress();;
 
     /**
      * Unify two addresses.
@@ -343,6 +343,7 @@ class PrologRuntime {
                         return true;
                     }
                     else {
+
                         return false;
                     }
                 }
@@ -375,7 +376,7 @@ class PrologRuntime {
      */
     public
     void newEnvironment ( int permVarCount ) {
-        frameStack.newEnvironment().convertToEnvironment(
+        frameStack.newEnvironment(
                 cp_index,
                 cp_clause,
                 permVarCount,
@@ -387,7 +388,7 @@ class PrologRuntime {
      */
     public
     void newChoicePoint ( int arity ) {
-        frameStack.newChoicePoint().convertToChoicePoint(
+        frameStack.newChoicePoint(
                 cp_index,
                 cp_clause,
                 p_clause,
@@ -395,10 +396,17 @@ class PrologRuntime {
                 tr,
                 h.getIndex(),
                 b0,
-                arity,
-                this);
+                arity
+        );
     }
 
+    public void newContext(){
+
+    }
+
+    /**
+     *
+     */
     public
     void setB0AsCurrentChoicePoint () {
         //if(frameStack.getEnvironmentTop()>frameStack.getChoicePointTop())
@@ -441,8 +449,8 @@ class PrologRuntime {
     public
     void trustChoicePoint () {
         Frame f = frameStack.popTopChoicePoint();
-        for (int i = 0; i < f.getVariableCount(); i++)
-            setRegister(i, f.getVar(i));
+        IntStream.range(0, f.getVariableCount())
+                .forEachOrdered(i -> setRegister(i, f.getVar(i)));
         frameStack.setEnvironmentTop(f.getE());
         cp_clause = f.getCPClause();
         cp_index = f.getCPIndex();
@@ -797,9 +805,11 @@ class PrologRuntime {
         r.append("write:\t%s\r\n".formatted(isInWriteMode));
         r.append("failed:\t%s\r\n".formatted(failed));
         r.append("s:\t\t%d\r\n".formatted(s));
-        String c = p_clause == null ? "null" : (p_clause.belongsTo == null ? "query" : p_clause.belongsTo);
+        String c = p_clause == null ? "null"
+                : (p_clause.belongsTo == null ? "query"
+                        : p_clause.belongsTo.toString());
         r.append("p:\t\t%d (clause from: %s)\r\n".formatted(p_index, c));
-        c = cp_clause.belongsTo == null ? "query" : cp_clause.belongsTo;
+        c = cp_clause.belongsTo == null ? "query" : cp_clause.belongsTo.toString();
         r.append("cp:\t\t%d (clause from: %s)\r\n".formatted(cp_index, c));
 
         return r.toString();
@@ -847,8 +857,9 @@ class PrologRuntime {
                         break;
                     }
                 }
-                if (nr == vars.size())
+                if (nr == vars.size()) {
                     vars.put(new CellAddress(addr.getDomain(), addr.getFrame(), addr.getIndex()), nr);
+                }
                 r.append("_V%d".formatted(nr));
             }
             case CON -> r.append(m.getFunctor());
@@ -874,9 +885,9 @@ class PrologRuntime {
         //for(String s : bindings.keySet()) System.out.println(s+" = "+bindings.get(s));
         return bindings;
     }
-
-    public
-    Map <PredicateIndicator, Consumer <PredicateIndicator>> getDirectiveTable () {
-        return directiveTable;
-    }
+//
+//    public
+//    Map <PredicateIndicator, Consumer <PredicateIndicator>> getDirectiveTable () {
+//        return directiveTable;
+//    }
 }

@@ -7,11 +7,14 @@ import org.stranger2015.hitalk.core.runtime.PrologRuntime;
 
 import java.io.FileInputStream;
 import java.io.IOException;
-import java.util.*;
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
 import java.util.Map.Entry;
 
 import static org.stranger2015.hitalk.core.AtomTerm.IMPLIES;
-import static org.stranger2015.hitalk.core.ListTerm.*;
+import static org.stranger2015.hitalk.core.ListTerm.EMPTY_LIST;
 import static org.stranger2015.hitalk.core.PrologParser.END_OF_FILE;
 
 /**
@@ -284,7 +287,8 @@ class PrologCompiler extends PrologRuntime {
     /**
      * @param entityTable
      */
-    public void compileEntities(Map<PredicateIndicator, Entity> entityTable){
+    public
+    void compileEntities ( Map <PredicateIndicator, Entity> entityTable ) {
         for (Entry <PredicateIndicator, Entity> entry : entityTable.entrySet()) {
 //            PredicateIndicator predicateIndicator = entry.getKey();
             Entity entity = entry.getValue();
@@ -295,16 +299,17 @@ class PrologCompiler extends PrologRuntime {
     /**
      * @param entity
      */
-  public void compileEntity(Entity entity){
-      var predDeclTable = entity.getPredicateDeclTable();
-      for (Entry <PredicateIndicator, PredicateDeclaration> predicateDeclEntry : predDeclTable.entrySet()) {
-          var key = predicateDeclEntry.getKey();
-          var pdecl = predicateDeclEntry.getValue();
+    public
+    void compileEntity ( Entity entity ) {
+        var predDeclTable = entity.getPredicateDeclTable();
+        for (Entry <PredicateIndicator, PredicateDeclaration> predicateDeclEntry : predDeclTable.entrySet()) {
+            var key = predicateDeclEntry.getKey();
+            var pdecl = predicateDeclEntry.getValue();
 
-          if (pdecl instanceof PredicateDefinition){
-              PredicateDefinition pdef=new PredicateDefinition(key);
-          }
-      }
+            if (pdecl instanceof PredicateDefinition) {
+                PredicateDefinition pdef = new PredicateDefinition(key, code);
+            }
+        }
     }
 
     /**
@@ -337,7 +342,6 @@ class PrologCompiler extends PrologRuntime {
     }
 
     /**
-     *
      * @param head
      * @return
      */
@@ -374,34 +378,29 @@ class PrologCompiler extends PrologRuntime {
                 if (c.getName() == IMPLIES) {
                     ListTerm args = c.getArgs();
                     RangeTerm length = args.getLength();
-                    if(length instanceof RangeTerm) {
-                        int arity=0;
-                        if (length.getArityLow()==length.getArityHigh()){
-                            arity  = length.getArityLow();
-                            if (arity == 1){
-                                callDirective(args.getHead());
-                                continue;
-                            }else  if (arity==2){
-                                head= args.getArg(0);
+                    if (length instanceof RangeTerm) {
+                        int arity = 0;
+                        if (length.getArityLow() == length.getArityHigh()) {
+                            arity = length.getArityLow();
+                            switch (arity) {
+                                case 0 -> {
+                                    callDirective(args);
+                                }
+                                case 1 -> {
+                                    callDirective(args.getHead());
+                                }
+                                case 2 -> {
+                                    head = args.getArg(0);
+                                    body = args.getTail();
+
+                                    return flatten(head, body);
+                                }
                             }
                         }
-
-                        continue;
-                    }
-                    if (args.getLength() == 2) {
-                        head = args.getArg(0);
-                        body = args.getTail();
-                        flattenClause = flatten(head, body);
-                        break;
-                    }
-                    else {
-                        throw new Error();
                     }
                 }
             }
         }
-
-        return flattenClause;
     }
 
     /**
@@ -414,18 +413,17 @@ class PrologCompiler extends PrologRuntime {
         List <Term> hl = flattenTerm(new ArrayList <>(), head);
         List <Term> bl = flattenTerm(hl, body);
 
-        return simplify(hl, bl);
+        return simplify(Collections.unmodifiableList(hl), bl);
     }
 
     private
     Clause simplify ( List <Term> hl, List <Term> bl ) {
         Term flatT = hl.get(0);
 
-        return new Clause();
+        return new Clause((CompoundTerm) flatT, (ListTerm) bl.get(0));//fixme
     }
 
     /**
-     *
      * @param additions
      * @param term
      * @return
@@ -436,7 +434,6 @@ class PrologCompiler extends PrologRuntime {
     }
 
     /**
-     *
      * @param clause
      * @return
      */
@@ -458,7 +455,8 @@ class PrologCompiler extends PrologRuntime {
             while (true) {
                 CompoundTerm head = (CompoundTerm) body.getHead();
             }
-        } else {
+        }
+        else {
         }
 
         return clause;
@@ -480,11 +478,12 @@ class PrologCompiler extends PrologRuntime {
         return t;
     }
 
-   // private @NotNull
+    // private @NotNull
     List <Term> expandTerm ( Term t ) {
         return call(AtomTerm.createAtom("term_expansion"));
     }
 //
+
     /**
      * @param term
      */
@@ -497,10 +496,9 @@ class PrologCompiler extends PrologRuntime {
      * @param terms
      * @return
      */
-    //private @NotNull
-    public List <Term> call ( Term... terms ) {
-
-        return new ArrayList <>();
+    public
+    List <Term> call ( Term... terms ) {
+        return PrologRuntime.;
     }
 
     /**
@@ -508,8 +506,8 @@ class PrologCompiler extends PrologRuntime {
      */
     public
     Term readTerm ( PrologInputStream in, ListTerm options ) {
-    TermIterator iterator = (TermIterator) parser.termIterator();
+        TermIterator iterator = (TermIterator) parser.termIterator();
 
-    return null;
+        return iterator.next();
     }
 }

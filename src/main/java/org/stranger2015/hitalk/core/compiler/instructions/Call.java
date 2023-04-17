@@ -14,8 +14,7 @@ public class Call implements Instruction {
 	 */
 	public Call(String functor, int arity){
 		this.functor = "%s/%d".formatted(functor, arity);
-	}
-
+	}//todo pred indicator
 	/**
 	 * @param runtime
 	 */

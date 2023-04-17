@@ -2,15 +2,24 @@ package org.stranger2015.hitalk.core.main;
 
 import java.util.Map;
 
- 
-public class OOPrologMain { 
+
+/**
+ *
+ */
+public class OOPrologMain {
 	private final Prolog prolog = new Prolog();
-	
+
+	/**
+	 * @param args
+	 */
 	public static void main(String[] args){
 		OOPrologMain m = new OOPrologMain();
 		m.test2();
 	}
 
+	/**
+	 *
+	 */
 	public void test2(){
 		prolog.activateDebugMode();
 		prolog.loadFile("./resources/input2.txt"); 

@@ -7,10 +7,10 @@ import java.util.List;
  *
  */
 public
-class Library implements IEnumerable{
+class Library implements IEnumerable {
     private final AtomTerm name;
     private
-    final List <PredicateDefinition> predicates=new ArrayList <>();
+    final List <PredicateDefinition> predicates = new ArrayList <>();
 
     /**
      * @param name

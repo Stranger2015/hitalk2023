@@ -11,27 +11,26 @@ class AtomTerm extends CompoundTerm implements IAtomic {
     public static final AtomTerm STATIC = createAtom("static");
     public static final AtomTerm DYNAMIC = createAtom("dynamic");
     public static final AtomTerm ENCODING = createAtom("encoding");
+    public static final AtomTerm OBJECT = createAtom("object");
+    public static final AtomTerm CATEGORY = createAtom("category");
+    public static final AtomTerm PROTOCOL = createAtom("protocol");
+    public static final AtomTerm USE_MODULE = createAtom("use_module");
+    public static final AtomTerm END_OBJECT = createAtom("end_object");
+    public static final AtomTerm END_CATEGORY = createAtom("end_category");
+    public static final AtomTerm END_PROTOCOL = createAtom("end_protocol");
+    public static final AtomTerm HILOG_APPLY = createAtom("$hilog_apply");
 
     /**
      *
      */
     public
     AtomTerm ( int data ) {
-        super(AtomTerm.MINUS, data);
+        super(MINUS, data);
     }
 
     public static
     int getId () {
         return id;
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public
-    byte getKind () {
-        return 0;
     }
 
     private static int id = 0;

@@ -1,11 +1,14 @@
 package org.stranger2015.hitalk.core.main;
 
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.Nullable;
 import org.stranger2015.hitalk.core.runtime.CodeBase;
 import org.stranger2015.hitalk.core.runtime.PrologRuntime;
 
+import java.io.FileNotFoundException;
 import java.util.Map;
 
-import static org.stranger2015.hitalk.core.compiler.Compiler.compileFile;
+import static org.stranger2015.hitalk.core.compiler.PrologToWAMCompiler.compileFile;
 
 /**
  * Main class to use when utilizing this WAM implementation for Prolog. Using this class
@@ -19,7 +22,7 @@ public class Prolog {
 	private boolean debugMode = false;
 	private Map <String, Integer> lastQueryVariables; // The variables of the last query, used to obtain bindings after a query
 	
-	public Prolog(){ 
+	public Prolog() throws FileNotFoundException {
 //		gui = new GUI(this);
 		loadFile("./resources/builtinlib");//toplevel
 	}
@@ -28,7 +31,7 @@ public class Prolog {
 	 * Adds a file to the code base of the engine. 
 	 * @param filePath
 	 */
-	public void loadFile(String filePath){
+	public void loadFile(String filePath) throws FileNotFoundException {
 		compileFile(filePath, code);
 	}
 	
@@ -56,17 +59,32 @@ public class Prolog {
 			return runtime.outputQueryResult(lastQueryVariables);
 		}
 	}
-	
-	public boolean redoQuery(){
+
+	/**
+	 *
+	 */
+	public
+	void redoQuery(){
 		runtime.reset();
-		return runtime.execute(false);
+		runtime.execute(false);
 	}
 	
 	public void setQuery(String query){
 		compileQuery(query, code);
-		if(debugMode) updateGUI();
+		if(debugMode) {
+			updateGUI();
+		}
 	}
-	
+
+	@Contract(pure = true)
+	private @Nullable
+	Map <String, Integer> compileQuery ( String query, CodeBase code ) {
+		return null;
+	}
+
+	/**
+	 *
+	 */
 	public void executeSingleStep(){
 		runtime.execute(true);
 	}
@@ -95,6 +113,9 @@ public class Prolog {
 //		gui.updateText(GUI.STACK, runtime.getStackString());
 //		gui.updateText(GUI.TRAIL, "Trail:\r\n");
 	}
-	
+
+	/**
+	 * @return
+	 */
 	public boolean isFinished(){return runtime.isFinished(); }
 }

@@ -36,6 +36,19 @@ public class CellAddress extends Term {
 	}
 	
 	public CellAddress(){}
+
+	@Override
+	public
+	boolean isPredicateIndicator () {
+		return false;
+	}
+
+	@Override
+	public
+	boolean isAtomic () {
+		return false;
+	}
+
 	public CellAddress(int domain, int frame, int index){
 //		super();
 		this.domain = domain;

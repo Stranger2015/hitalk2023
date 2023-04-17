@@ -9,8 +9,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
 
-import static org.stranger2015.hitalk.core.ListTerm.EMPTY_LIST;
-import static org.stranger2015.hitalk.core.Term.VAR;
 import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.CON;
 
 /**
@@ -18,19 +16,30 @@ import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.C
  */
 public
 class HitalkInterpreter extends LogtalkInterpreter {
-    private AtomTerm qualifiedName;
-    private Term arg2;
-    private final Map <PredicateIndicator, Entity> entityTable=new HashMap <>();
+    private static AtomTerm qualifiedName;
+    private static Term arg2;
+    protected final Map <PredicateIndicator, Entity <?>> entityTable = new HashMap <>();
+
+    @Override
+    protected
+    Entity <?> getEntity () {
+        return super.getEntity();
+    }
+private final
+    Map <PredicateIndicator, Predicate> predicateTable = new HashMap <>();
 
     private
     AtomTerm createAtom ( String s ) {
-        return new AtomTerm(CON);
+        return new AtomTerm(CON.ordinal());
     }
 
-    private final CompoundTerm colonColon = new CompoundTerm(qualifiedName, AtomTerm.createAtom("::"), arg2);
-    private final CompoundTerm colon = new CompoundTerm(qualifiedName, AtomTerm.createAtom(":"), arg2);
-    private final CompoundTerm upUp = new CompoundTerm(qualifiedName, AtomTerm.createAtom("^^"), arg2);
-    private final CompoundTerm hashHash = new CompoundTerm(qualifiedName, AtomTerm.createAtom("##"), arg2);
+    private static final CompoundTerm colonColon = new CompoundTerm(qualifiedName, AtomTerm.createAtom("::"), arg2);
+    private static final CompoundTerm colon = new CompoundTerm(qualifiedName, AtomTerm.createAtom(":"), arg2);
+    private static final CompoundTerm upUp = new CompoundTerm(qualifiedName, AtomTerm.createAtom("^^"), arg2);
+    private static final CompoundTerm hash = new CompoundTerm(qualifiedName, AtomTerm.createAtom("#"), arg2);
+    private static final CompoundTerm hashHash = new CompoundTerm(qualifiedName, AtomTerm.createAtom("##"), arg2);
+    private static final CompoundTerm cactus = new CompoundTerm(qualifiedName, AtomTerm.createAtom(">>"), arg2);
+    private static final CompoundTerm linear = new CompoundTerm(qualifiedName, AtomTerm.createAtom(">>>"), arg2);
 
     /**
      * solve(_, true).
@@ -60,6 +69,8 @@ class HitalkInterpreter extends LogtalkInterpreter {
     private
     void init () {
         createObject(AtomTerm.createAtom("user"));
+        createObject(AtomTerm.createAtom("logtalk"));
+        createObject(AtomTerm.createAtom("hitalk"));
     }
 
     private
@@ -201,10 +212,11 @@ class HitalkInterpreter extends LogtalkInterpreter {
 //    }
 
     /**
-     * @return
+     * //     * @return
+     * //
      */
     public
-    Map <PredicateIndicator, Entity> getEntityTable () {
+    Map <PredicateIndicator, Entity<?>> getEntityTable () {
         return entityTable;
     }
 
@@ -216,11 +228,5 @@ class HitalkInterpreter extends LogtalkInterpreter {
         return predicateTable;
     }
 
-    /**
-     * @return
-     */
-    public
-    Map <String, AtomTerm> getAtomTable () {
-        return atomTable;
-    }
+
 }

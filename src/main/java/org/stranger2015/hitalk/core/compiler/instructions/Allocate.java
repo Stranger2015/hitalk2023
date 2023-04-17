@@ -1,20 +1,29 @@
 package org.stranger2015.hitalk.core.compiler.instructions;
 
+import org.stranger2015.hitalk.core.IExecutable;
 import org.stranger2015.hitalk.core.runtime.PrologRuntime;
 
-public class Allocate implements Instruction {
+public class Allocate implements Instruction, IExecutable {
     private final int nrOfVariables;
 
     public Allocate(int nrOfVariables){
         this.nrOfVariables = nrOfVariables;
     }
 
-    public void execute( PrologRuntime runtime) {
+    /**
+     * @param runtime
+     */
+    @Override
+    public void execute( PrologRuntime runtime ) {
         runtime.newEnvironment(nrOfVariables);
         runtime.increaseP();
     }
 
-    public String toString(){ return "allocate %d".formatted(nrOfVariables);
+    /**
+     * @return
+     */
+    public String toString(){
+        return "allocate %d".formatted(nrOfVariables);
     }
 }
 

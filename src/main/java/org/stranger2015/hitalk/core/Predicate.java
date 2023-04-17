@@ -9,7 +9,7 @@ import java.util.Map;
 public
 class Predicate implements IPropertyOwner {
     private final CompoundTerm name;
-    private final  Map <AtomTerm, IProperty> props=new HashMap <>();
+    private final Map <AtomTerm, IProperty> props = new HashMap <>();
 
     /**
      * @param name

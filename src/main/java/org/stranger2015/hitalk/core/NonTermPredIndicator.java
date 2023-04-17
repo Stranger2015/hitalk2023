@@ -4,14 +4,17 @@ package org.stranger2015.hitalk.core;
  *
  */
 public
-class NonTermPredIndicator extends PredicateIndicator{
+class NonTermPredIndicator extends PredicateIndicator {
+
+    public static final AtomTerm DOUBLE_SLASH = AtomTerm.createAtom("//");
+
     /**
      * @param name
      * @param arity
      */
     public
     NonTermPredIndicator ( AtomTerm name, int arity ) {
-        super(name, false, arity);
+        super(name, arity);
     }
 
     /**
@@ -20,6 +23,6 @@ class NonTermPredIndicator extends PredicateIndicator{
      */
     public
     NonTermPredIndicator ( AtomTerm name, RangeTerm rangeTerm ) {
-        super(name, false, rangeTerm);
+        super(name, rangeTerm, range);
     }
 }

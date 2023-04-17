@@ -4,36 +4,47 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.function.Consumer;
-
-import static org.stranger2015.hitalk.core.AtomTerm.createAtom;
 
 /**
  *
  */
 abstract public
-class Entity implements IPropertyOwner, IEnumerable {
+class Entity<T extends Entity<T>> implements IPropertyOwner, IEnumerable {
     protected final PredicateIndicator entityId;
-    protected final List <Relation> relations = new ArrayList <>();
+    protected final List <Relation<T>> relations = new ArrayList <>();
     protected final List <Directive> directives = new ArrayList <>();
     protected final List <Directive> entityDirectives = new ArrayList <>();
     protected final Map <PredicateIndicator, PredicateDeclaration> predicateDeclTable = new HashMap <>();
     protected final Map <AtomTerm, IProperty> properties = new HashMap <>();
 
+    protected final Predicate predicate;
+
     /**
      * @param entityId
      * @param relations
      * @param directives
+     * @param predicate
      */
     public
     Entity ( PredicateIndicator entityId,
-             List <Relation> relations,
-             List <Directive> directives
-    ) {
+             List <Relation<T>> relations,
+             List <Directive> directives,
+             Predicate predicate ) {
 
-        this.entityId = entityId;
+        this(entityId, predicate);
+
         this.relations.addAll(relations);
         this.directives.addAll(directives);
+    }
+
+    /**
+     * @param entityId
+     * @param predicate
+     */
+    public
+    Entity ( PredicateIndicator entityId, Predicate predicate ) {
+        this.entityId = entityId;
+        this.predicate = predicate;
     }
 
     /**
@@ -53,11 +64,17 @@ class Entity implements IPropertyOwner, IEnumerable {
         this.properties.putAll(properties);
     }
 
+    /**
+     * @return
+     */
     public
-    List <Relation> getRelations () {
+    List <Relation<T>> getRelations () {
         return relations;
     }
 
+    /**
+     * @return
+     */
     public
     List <Directive> getDirectives () {
         return entityDirectives;
@@ -69,6 +86,15 @@ class Entity implements IPropertyOwner, IEnumerable {
     public
     PredicateIndicator getEntityId () {
         return entityId;
+    }
+
+    /**
+     * @param predicateIndicator
+     * @return
+     */
+    public
+    Predicate getPredicate ( PredicateIndicator predicateIndicator ) {
+        return predicate;
     }
 
     /**
@@ -86,7 +112,6 @@ class Entity implements IPropertyOwner, IEnumerable {
         IMPLEMENTS_PROTOCOLS,
         IMPORTS_CATEGORIES,
         EXTENDS_OBJECTS
-
     }
 
     /**
@@ -105,6 +130,9 @@ class Entity implements IPropertyOwner, IEnumerable {
         COMPLEMENTS_OBJECTS,
     }
 
+    /**
+     *
+     */
     enum EPredicateDirective {
         ALIAS_DIRECTIVE,
         SYNCHRONIZED_DIRECTIVE,
@@ -121,7 +149,6 @@ class Entity implements IPropertyOwner, IEnumerable {
         COINDUCTIVE_DIRECTIVE,
         OPERATOR_DIRECTIVE,
     }
-
 
     /**
      *
@@ -159,103 +186,15 @@ class Entity implements IPropertyOwner, IEnumerable {
     /**
      *
      */
-    public
-    void initDirectives () {
-        TermIterator iterator=PrologParser.
-        directives.add(new CompoundTerm(createAtom("module"), true, 0),
-                new Consumer <>() {
-                    /**
-                     * Performs this operation on the given argument.
-                     *
-                     * @param o the input argument
-                     */
-                    @Override
-                    public
-                    void accept ( Object o ) {
+    public abstract
+    void initDirectives ();
 
-                    }
-////                        /**
-////                         * Performs this operation on the given argument.
-////                         *
-////                         * @param predicateIndicator the input argument
-////                         */
-////                        @Override
-////                        public
-////                        void accept ( PredicateIndicator predicateIndicator ) {
-////                            int arity = predicateIndicator.getArgCount();
-////                        }
-                }
-        );
-////            directives.put(new PredicateIndicator(createAtom("end_module"), true, 0),
-////                    new Consumer <>() {
-////                        /**
-////                         * Performs this operation on the given argument.
-////                         *
-////                         * @param predicateIndicator the input argument
-////                         */
-////                        @Override
-////                        public
-////                        void accept ( PredicateIndicator predicateIndicator ){
-////                            RangeTerm arity = predicateIndicator.getArity();
-//////                            predicateIndicator
-////                        }
-////                    });
-////
-        directives(new PredicateIndicator(createAtom("object"), true, new RangeTerm(1, 4)),
-                new Consumer <>() {
-                    /**
-                     * Performs this operation on the given argument.
-                     *
-                     * @param predicateIndicator the input argument
-                     */
-                    @Override
-                    public
-                    void accept ( PredicateIndicator predicateIndicator ) {
-                        RangeTerm arity = predicateIndicator.getArity();
-                        predicateIndicator
-                    }
-                }
-        );
-        directives.add(new PredicateIndicator(createAtom("end_object"), true, 0),
-                new Consumer <>() {
-                    /**
-                     * Performs this operation on the given argument.
-                     *
-                     * @param predicateIndicator the input argument
-                     */
-                    @Override
-                    public
-                    void accept ( PredicateIndicator predicateIndicator ) {
-                        RangeTerm arity = predicateIndicator.getArity();
-                        predicateIndicator(entityId);
-                    }
-                });
-        directives.put(new PredicateIndicator(createAtom("encoding"), true, 0),
-                new Consumer <>() {
-                    /**
-                     * Performs this operation on the given argument.
-                     *
-                     * @param predicateIndicator the input argument
-                     */
-                    @Override
-                    public
-                    void accept ( PredicateIndicator predicateIndicator ) {
-                        int arity = predicateIndicator.getArgCount();
-                    }
-                }
-        );
-
-    }
-
-    //    /**
-//     *
-//     */
-//    private final PredicateIndicator entityId;
+    //    private final PredicateIndicator entityId;
 //    private final Map <AtomTerm, IProperty> props = new HashMap <>();
 //    private final Map <PredicateIndicator, PredicateDeclaration> predicateDeclTable = new HashMap <>();
-//    private final Map <AtomTerm, List <Operator>> opTable = new HashMap <>();
-////    private final IEnumerable entity;
-//    /**
+    protected final Map <AtomTerm, List <Operator>> opTable = new HashMap <>();
+
+    //    /**
 //     *
 //     */
 //    private final Set <PredicateIndicator> namespace = new HashSet <>();
@@ -320,21 +259,12 @@ class Entity implements IPropertyOwner, IEnumerable {
     Map <PredicateIndicator, PredicateDeclaration> getPredicateDeclTable () {
         return predicateDeclTable;
     }
-}
-//    /**
-//     * @return
-//     */
-//    public
-//    Map <AtomTerm, List <Operator>> getOpTable () {
-//        return opTable;
-//    }
 
-//    /**
-//     * @param predicateIndicator
-//     * @return
-//     */
-//    public
-//    List <Predicate> getPredicate ( PredicateIndicator predicateIndicator ) {
-//        return null;
-//    }
-//}
+    /**
+     * @return
+     */
+    public
+    Map <AtomTerm, List <Operator>> getOpTable () {
+        return opTable;
+    }
+}

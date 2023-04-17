@@ -47,8 +47,8 @@ class CodeBase {
     public
     void setQuery ( CompiledClause query ) {
         this.query.reset();
-        this.query.setInstructions(query.getInstructions());
-        this.query.setPrologString(query.getPrologString());
+        this.query.setInstructions(query.instructions());
+        this.query.setPrologString(query.prologString());
     }
 
     /**
@@ -62,9 +62,9 @@ class CodeBase {
             List <CompiledClause> clauses = code.get(f);
             for (CompiledClause c : clauses) {
                 CodeClause newClause = new CodeClause();
-                newClause.belongsTo = c.getFunctor();
-                newClause.setInstructions(c.getInstructions());
-                newClause.setPrologString(c.getPrologString());
+                newClause.belongsTo = c.getPredicateIndicator();
+                newClause.setInstructions(c.instructions());
+                newClause.setPrologString(c.prologString());
                 newClause.setPrevious(clause);
                 if (clause != null) {
                     clause.setNext(newClause);
@@ -130,13 +130,13 @@ class CodeBase {
     public
     void addCodeClause ( CompiledClause c ) {
         CodeClause newClause = new CodeClause();
-        newClause.setInstructions(c.getInstructions());
-        newClause.setPrologString(c.getPrologString());
-        newClause.belongsTo = c.getFunctor();
-        CodeClause clause = clauses.get(c.getFunctor());
+        newClause.setInstructions(c.instructions());
+        newClause.setPrologString(c.prologString());
+        newClause.belongsTo = c.functor();
+        CodeClause clause = clauses.get(c.functor());
         if (clause == null) {
             // first of its kind
-            clauses.put(c.getFunctor(), newClause);
+            clauses.put(c.functor(), newClause);
         }
         else {
             while (clause.getNext() != null) {
@@ -148,7 +148,7 @@ class CodeBase {
                 newClause.getInstructions().add(0, new TrustMe());
             }
             else { // There was only one fact, add tryme and trustme
-                int arity = Integer.parseInt(c.getFunctor().substring(c.getFunctor().lastIndexOf('/') + 1));
+                int arity = Integer.parseInt(c.functor().substring(c.functor().lastIndexOf('/') + 1));
                 clause.getInstructions().add(0, new TryMe(arity));
                 newClause.getInstructions().add(0, new TrustMe());
             }

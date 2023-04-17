@@ -6,7 +6,7 @@ import org.stranger2015.hitalk.core.runtime.PrologRuntime;
 
 import java.util.HashMap;
 
-import static org.stranger2015.hitalk.core.compiler.Compiler.compileStringFact;
+import static org.stranger2015.hitalk.core.compiler.PrologToWAMCompiler.compileStringFact;
 import static org.stranger2015.hitalk.core.runtime.MemoryCell.ETypeMemoryCells.*;
 import static org.stranger2015.hitalk.core.runtime.PrologRuntime.REGISTERS;
 

@@ -1,9 +1,9 @@
 package org.stranger2015.hitalk.core.runtime.compiler;
 
-import static org.stranger2015.hitalk.core.runtime.compiler.WAMTokenizer.varRegisterToString;
-
+import org.jetbrains.annotations.Contract;
+import org.jetbrains.annotations.NotNull;
 /**
- * Compiler token streams are used by the compiler to convert Prolog into WAM instructions.
+ * PrologToWAMCompiler token streams are used by the compiler to convert Prolog into WAM instructions.
  * This class is currently not used but in the future all token classes will be replaced by this one.
  * The purpose is that then compiler tokens can be reused for better assert/retract operations at runtime.
  *
@@ -141,5 +141,15 @@ class CompilerToken {
         return r.toString();
     }
 
+    /**
+     *
+     * @param i1
+     * @return
+     */
+    @Contract(pure = true)
+    public @NotNull
+    String varRegisterToString ( int i1 ) {
 
+        return String.valueOf(i1);
+    }
 }

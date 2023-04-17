@@ -1,4 +1,4 @@
-package org.stranger2015.hitalk.core.compiler.instructions.extension;
+package org.stranger2015.hitalk.core.compiler.instructions.extension.uda;
 
 import org.stranger2015.hitalk.core.compiler.instructions.Instruction;
 import org.stranger2015.hitalk.core.runtime.PrologRuntime;

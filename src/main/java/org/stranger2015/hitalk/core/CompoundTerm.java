@@ -13,7 +13,7 @@ class CompoundTerm extends Term {
     }
 
     public
-    CompoundTerm ( AtomTerm name, int arity ){
+    CompoundTerm ( AtomTerm name, int arity ) {
         super();
     }
 
@@ -24,7 +24,6 @@ class CompoundTerm extends Term {
 
     public
     CompoundTerm ( String seq, AtomTerm result, AtomTerm result1 ) {
-
 
     }
 
@@ -45,27 +44,22 @@ class CompoundTerm extends Term {
 
     public
     CompoundTerm ( ListTerm nameArgs ) {
-
+        this.nameArgs = nameArgs;
     }
 
     public
     CompoundTerm ( AtomTerm name, RangeTerm rangeTerm ) {
+    }
 
+    public
+    CompoundTerm ( AtomTerm name, CompoundTerm compoundTerm, int arity ) {
+        nameArgs = new ListTerm(name);//fixme
     }
 
     @Override
     public
     String toString () {
-        return "CompoundTerm %s%s%d".formatted(getName(),"/", getArity());
-    }
-
-    /**
-     * @return
-     */
-    @Override
-    public
-    byte getKind () {
-        return 0;
+        return "CompoundTerm %s%s%d".formatted(getName(), "/", getArity());
     }
 
     /**
@@ -102,8 +96,8 @@ class CompoundTerm extends Term {
     }
 
     public
-    PredicateIndicator toPredicateIndicator ( boolean b ) {
-        return new PredicateIndicator((AtomTerm) nameArgs.getHead(),b, nameArgs.getTail().getLength());
+    PredicateIndicator toPredicateIndicator () {
+        return new PredicateIndicator((AtomTerm) nameArgs.getHead(), nameArgs.getTail().getLength());
     }
 
     /**
@@ -115,7 +109,6 @@ class CompoundTerm extends Term {
     }
 
     /**
-     *
      * @return
      */
     public

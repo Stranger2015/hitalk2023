@@ -8,7 +8,8 @@ import java.util.function.Function;
 public
 class Clause extends ListTerm implements Function <ListTerm, Boolean> {
     private final CompoundTerm head;
-    private final Term body = EMPTY_LIST;
+    private Term body = EMPTY_LIST;
+    private Clause previous;
     private Clause next;
 
     /**
@@ -20,6 +21,7 @@ class Clause extends ListTerm implements Function <ListTerm, Boolean> {
         super(head);
 
         this.head = head;
+        this.body = body;
     }
 
     /**
@@ -65,5 +67,19 @@ class Clause extends ListTerm implements Function <ListTerm, Boolean> {
     public
     Boolean apply ( ListTerm listTerm ) {
         return null;
+    }
+
+    /**
+     * @return
+     */
+    public
+    Clause getPrevious () {
+        return previous;
+    }
+
+
+    public
+    void setPrevious ( Clause previous ) {
+        this.previous = previous;
     }
 }

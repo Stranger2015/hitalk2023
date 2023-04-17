@@ -43,8 +43,20 @@ class PrologInputStream extends InputStreamReader {
         super(in);
     }
 
+    /**
+     * read terms from st
+     * @param st
+     */
     public
     PrologInputStream ( String st ) {
         super(new ByteArrayInputStream(st.getBytes(UTF_8)));
+    }
+
+    /**
+     * @param file
+     */
+    public
+    PrologInputStream (File file ) throws FileNotFoundException {
+      this(new FileInputStream(file));
     }
 }

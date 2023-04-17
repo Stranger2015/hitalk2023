@@ -1,6 +1,5 @@
 package org.stranger2015.hitalk.core.compiler;
 
-import org.stranger2015.hitalk.core.AtomTerm;
 import org.stranger2015.hitalk.core.Term;
 
 import java.util.List;

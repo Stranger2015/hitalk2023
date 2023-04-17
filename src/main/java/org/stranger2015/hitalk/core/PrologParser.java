@@ -93,17 +93,17 @@ class PrologParser implements Serializable {
     private final Tokenizer tokenizer;
     private OperatorManager opManager = defaultOperatorManager;
 
-//        /**
-//         * creating a PrologParser specifying how to handle operators
-//         * and what text to parse
-//         */
-//        @Contract(pure = true)
-//        public PrologParser( OperatorManager op,/* InputStream theoryText,*/ Tokenizer tokenizer ) {
-//            this.tokenizer = tokenizer;
-//            if (op != null) {
-//                opManager = op;
-//            }
-//        }
+    /**
+     * creating a PrologParser specifying how to handle operators
+     * and what text to parse
+     */
+    public
+    PrologParser ( OperatorManager op, Tokenizer tokenizer ) {
+        this.tokenizer = tokenizer;
+        if (op != null) {
+            opManager = op;
+        }
+    }
 
     /**
      * creating a PrologParser specifying how to handle operators
@@ -143,7 +143,7 @@ class PrologParser implements Serializable {
     }
 
     public
-    Iterator <Entity> entityIterator () {
+    Iterator <Entity<?>> entityIterator () {
         return new PrologEntityIterator(this);
     }
 
@@ -231,8 +231,8 @@ class PrologParser implements Serializable {
     IdentifiedTerm exprA ( int maxPriority, boolean commaIsEndMarker ) throws IllegalArgumentException, IOException {
 
         IdentifiedTerm leftSide = exprB(maxPriority, commaIsEndMarker);
-//        if (leftSide == null)
-//            return null;
+        if (leftSide == null)
+            return null;
 
         //{op(yfx,n) exprA(n-1) | op(yf,n)}*
         Token t = tokenizer.readToken();
@@ -351,7 +351,7 @@ class PrologParser implements Serializable {
             if (f.seq.equals("-")) {
                 Token t = tokenizer.readToken();
                 if (t.isNumber()) {
-                    return new IdentifiedTerm(0, createNumber("-%s".formatted(t.seq)));
+                    return new IdentifiedTerm(0, AtomTerm.createAtom("-%s".formatted(t.seq)));//fixme
                 }
                 else {
                     tokenizer.unreadToken(t);
@@ -401,10 +401,10 @@ class PrologParser implements Serializable {
         try {
             return parseInteger(s);
         } catch (RuntimeException e) {
-            parseDouble(s);
-
+            return parseDouble(s);
         }
-    }
+
+   }
 
     /**
      * exprA(0) ::= integer |
@@ -440,7 +440,8 @@ class PrologParser implements Serializable {
             String functor = t1.seq;
             Token t2 = tokenizer.readToken();   //reading left par
             if (!t2.isType(LPAR)) {
-                throw new IllegalArgumentException("bug in parsing process. Something identified as functor misses its first left parenthesis".formatted());//todo check can be skipped
+                throw new IllegalArgumentException(("bug in parsing process. " +
+                        "Something identified as functor misses its first left parenthesis"));//todo check can be skipped
             }
             List <AtomTerm> listTerm = expr0_arglist();     //reading arguments
             Token t3 = tokenizer.readToken();
@@ -448,7 +449,7 @@ class PrologParser implements Serializable {
             {
                 return new CompoundTerm(functor, (AtomTerm) a);
             }
-            throw new IllegalArgumentException("Missing right parenthesis: (" + a + " -> here <-");
+            throw new IllegalArgumentException("Missing right parenthesis: (%s -> here <-".formatted(a));
         }
 
         if (t1.isType(LPAR)) {
@@ -456,7 +457,7 @@ class PrologParser implements Serializable {
             if (tokenizer.readToken().isType(RPAR)) {
                 return term;
             }
-            throw new IllegalArgumentException("Missing right parenthesis: (" + term + " -> here <-");
+            throw new IllegalArgumentException("Missing right parenthesis: (%s -> here <-".formatted(term));
         }
 
         if (t1.isType(LBRA)) {
@@ -465,7 +466,7 @@ class PrologParser implements Serializable {
                 AtomTerm qualifiedName = null;
                 Term arg2 = null;
 
-                return new CompoundTerm(qualifiedName, createAtom("::"), arg2);
+                return new CompoundTerm(qualifiedName, createAtom(CompoundTerm..COLON_COLON), arg2);
             }
 
             tokenizer.unreadToken(t2);
@@ -547,8 +548,8 @@ class PrologParser implements Serializable {
     }
 
     static
-    double parseDouble ( String s ) {
-        return Double.parseDouble(s);
+    NumberTerm parseDouble ( String s ) {
+        return new DoubleTerm(Double.parseDouble(s));
     }
 
     public
